@@ -38,7 +38,7 @@ public class TempertureView extends View {
     Rect rLengKu;
     Paint centerImgPaint;
     float rotateAngle;
-    int temperature = -20;
+    int temperature = 10;
     int minTemp = -30;
     int maxTemp = 30;
     Bitmap centerImg = BitmapFactory.decodeResource(getResources(),
@@ -361,22 +361,39 @@ public class TempertureView extends View {
     private void drawOthers(Canvas canvas) {
         canvas.save();
         canvas.drawText("冷库温度状况:",getWidth()/2-centerImg.getWidth()/2,getHeight()/2+0.7f*arcRadius+70,paint);
+        String str =null;
         if(temperature<0){
             if(temperature<minTemp){
                 temperature=minTemp;
             }
             int abs = Math.abs(temperature);
             huanPaint.setColor(tempColors.get(maxTemp-abs));
+            if(temperature<=-20){
+                str = "优";
+            }else if(temperature<=-10){
+                str = "良";
+            }else {
+                str = "中等";
+            }
         }else if(temperature==0){
             huanPaint.setColor(tempColors.get(maxTemp));
+            str = "中等";
         }else if(temperature>0){
             if(temperature>maxTemp){
                 temperature=maxTemp;
             }
+            if(temperature>=20){
+                str = "危险";
+            }else if(temperature>=10){
+                str = "过热";
+            }else {
+                str = "中等";
+            }
             huanPaint.setColor(tempColors.get(maxTemp+temperature));
         }
         canvas.drawRect(getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+20,getHeight()/2+0.7f*arcRadius+60-rLengKu.height()/3*2,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+100,getHeight()/2+0.7f*arcRadius+60+rLengKu.height()/3,huanPaint);
-        canvas.drawText("优",getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+120,getHeight()/2+0.7f*arcRadius+70,paint);
+
+        canvas.drawText(str,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+120,getHeight()/2+0.7f*arcRadius+70,paint);
         canvas.restore();
     }
 
@@ -401,8 +418,9 @@ public class TempertureView extends View {
             tempPaint.setColor(tempColors.get(maxTemp+temperature));
         }
         canvas.drawText(temperature + "°", -tempWidth / 2 - dp2px(5), -tempHeight, tempPaint);
+        canvas.rotate(rotateAngle);
         tempPaint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(0,0,5,tempPaint);
+        canvas.drawCircle(0-centerImg.getWidth()/2+0.7f*125,0+centerImg.getWidth()/2-0.7f*125,10,tempPaint);
         canvas.restore();
     }
 
