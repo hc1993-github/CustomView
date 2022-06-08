@@ -65,7 +65,7 @@ public class TempertureView extends View {
     String stringL = "良";
     String stringGR = "过热";
     String stringWX = "危险";
-    String stringLKWDZK = "冷库温度状:";
+    String stringLKWDZK = "冷库温度状况:";
     LinearGradient linearGradient;
     Matrix matrix;
     public TempertureView(Context context, @Nullable AttributeSet attrs) {
