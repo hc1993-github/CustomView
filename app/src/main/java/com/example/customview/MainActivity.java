@@ -11,6 +11,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tempertureView = findViewById(R.id.tempView);
-        tempertureView.setTemperature(0);
+        tempertureView.setPrecentTemp(-9,9,6,-6,3,-3);
+        tempertureView.setTemperature(-6);
     }
 }

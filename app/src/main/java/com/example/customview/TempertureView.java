@@ -49,16 +49,22 @@ public class TempertureView extends View {
     int temperature = 0;
     int minTemp = -30;
     int maxTemp = 30;
+    int middleTemp = 0;
+    int precent2Temp = 20;
+    int precent02Temp = -20;
+    int precent1Temp = 10;
+    int precent01Temp = -10;
     Bitmap centerImg = BitmapFactory.decodeResource(getResources(),R.drawable.center);
     List<Integer> tempColors;
     List<Integer> paintColors;
-    String string030 = "-30°";
-    String string020 = "-20°";
-    String string010 = "-10°";
-    String string0 = "0°";
-    String string10 = "10°";
-    String string20 = "20°";
-    String string30 = "30°";
+    String stringDegree = "°";
+    String string030;
+    String string020;
+    String string010;
+    String string0;
+    String string10;
+    String string20;
+    String string30;
     String stringZD = "中等";
     String stringY = "优";
     String stringL = "良";
@@ -70,9 +76,20 @@ public class TempertureView extends View {
     public TempertureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         matrix = new Matrix();
+        ininStrings();
         initTempColorsDatas();
         initPaints();
         initRects();
+    }
+
+    private void ininStrings() {
+        string030 = minTemp+stringDegree;
+        string020 = precent02Temp+stringDegree;
+        string010 = precent01Temp+stringDegree;
+        string0 = middleTemp+stringDegree;
+        string10 = precent1Temp+stringDegree;
+        string20 = precent2Temp+stringDegree;
+        string30 = maxTemp+stringDegree;
     }
 
     private void initRects() {
@@ -435,34 +452,34 @@ public class TempertureView extends View {
         canvas.save();
         canvas.drawText(stringLKWDZK,getWidth()/2-centerImg.getWidth()/2,getHeight()/2+0.7f*arcRadius+70,paintOthers);
         String str =null;
-        if(temperature<0){
+        if(temperature<middleTemp){
             if(temperature<minTemp){
                 temperature=minTemp;
             }
             int abs = Math.abs(temperature);
-            paintOthers.setColor(tempColors.get(maxTemp-abs));
-            if(temperature<=-20){
+            paintOthers.setColor(tempColors.get((int) ((maxTemp-abs)*(135f/maxTemp)*60/270)));
+            if(temperature<=precent02Temp){
                 str = stringY;
-            }else if(temperature<=-10){
+            }else if(temperature<=precent01Temp){
                 str = stringL;
             }else {
                 str = stringZD;
             }
-        }else if(temperature==0){
-            paintOthers.setColor(tempColors.get(maxTemp));
+        }else if(temperature==middleTemp){
+            paintOthers.setColor(tempColors.get(30));
             str = stringZD;
-        }else if(temperature>0){
+        }else if(temperature>middleTemp){
             if(temperature>maxTemp){
                 temperature=maxTemp;
             }
-            if(temperature>=20){
+            if(temperature>=precent2Temp){
                 str = stringWX;
-            }else if(temperature>=10){
+            }else if(temperature>=precent1Temp){
                 str = stringGR;
             }else {
                 str = stringZD;
             }
-            paintOthers.setColor(tempColors.get(maxTemp+temperature));
+            paintOthers.setColor(tempColors.get(60-(int) ((maxTemp-temperature)*(135f/maxTemp)*60/270)));
         }
         canvas.drawRect(getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+20,getHeight()/2+0.7f*arcRadius+60-rLengKu.height()/3*2,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+100,getHeight()/2+0.7f*arcRadius+60+rLengKu.height()/3,paintOthers);
         paintOthers.setColor(paintColors.get(5));
@@ -475,40 +492,40 @@ public class TempertureView extends View {
         canvas.translate(getWidth() / 2, getHeight() / 2);
         float tempWidth = paintTemp.measureText(temperature + "");
         float tempHeight = (paintTemp.ascent() + paintTemp.descent()) / 2;
-        if(temperature<0){
+        if(temperature<middleTemp){
             if(temperature<minTemp){
                 temperature=minTemp;
             }
             int abs = Math.abs(temperature);
-            paintTemp.setColor(tempColors.get(maxTemp-abs));
-        }else if(temperature==0){
-            paintTemp.setColor(tempColors.get(maxTemp));
-        }else if(temperature>0){
+            paintTemp.setColor(tempColors.get((int) ((maxTemp-abs)*(135f/maxTemp)*60/270)));
+        }else if(temperature==middleTemp){
+            paintTemp.setColor(tempColors.get(30));
+        }else if(temperature>middleTemp){
             if(temperature>maxTemp){
                 temperature=maxTemp;
             }
-            paintTemp.setColor(tempColors.get(maxTemp+temperature));
+            paintTemp.setColor(tempColors.get(60-(int) ((maxTemp-temperature)*(135f/maxTemp)*60/270)));
         }
-        canvas.drawText(temperature + "°", -tempWidth / 2 - dp2px(5), -tempHeight, paintTemp);
+        canvas.drawText(temperature + stringDegree, -tempWidth / 2 - dp2px(5), -tempHeight, paintTemp);
         canvas.rotate(rotateAngle);
         canvas.drawCircle(0-centerImg.getWidth()/2+0.7f*130,0+centerImg.getWidth()/2-0.7f*130,10,paintTemp);
         canvas.restore();
     }
 
     private void caculateAngle(int currentTemp){
-        if(currentTemp<0){
+        if(currentTemp<middleTemp){
             if(currentTemp<minTemp){
-                rotateAngle=0;
+                rotateAngle=middleTemp;
             }else {
-                rotateAngle = (currentTemp-minTemp)*4.5f;
+                rotateAngle = (currentTemp-minTemp)*(135f/maxTemp);
             }
-        }else if(currentTemp==0){
+        }else if(currentTemp==middleTemp){
             rotateAngle=135;
-        }else if(currentTemp>0){
+        }else if(currentTemp>middleTemp){
             if(currentTemp>maxTemp){
                 rotateAngle=270;
             }else {
-                rotateAngle = 270-(maxTemp-currentTemp)*4.5f;
+                rotateAngle = 270-(maxTemp-currentTemp)*(135f/maxTemp);
             }
         }
     }
@@ -599,6 +616,22 @@ public class TempertureView extends View {
 
     public void setTemperature(int temp){
         this.temperature = temp;
-        invalidate();
+        postInvalidate();
     }
+    public void setPrecentTemp(int minT,int maxT,int p2T,int p02T,int p1T,int p01T){
+        this.minTemp = minT;
+        this.maxTemp = maxT;
+        this.precent2Temp = p2T;
+        this.precent02Temp = p02T;
+        this.precent1Temp = p1T;
+        this.precent01Temp = p01T;
+        string030 = minTemp+stringDegree;
+        string30 = maxTemp+stringDegree;
+        string20 = precent2Temp+stringDegree;
+        string020 = precent02Temp+stringDegree;
+        string10 = precent1Temp+stringDegree;
+        string010 = precent01Temp+stringDegree;
+        postInvalidate();
+    }
+
 }
