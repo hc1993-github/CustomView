@@ -259,7 +259,7 @@ public class TempertureView extends View {
         drawOthers(canvas);
     }
 
-    private void drawHuan(Canvas canvas) {
+    private void drawHuan(Canvas canvas) { //画渐变色圈
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(45);//-30
@@ -448,7 +448,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void drawOthers(Canvas canvas) {
+    private void drawOthers(Canvas canvas) { //画中间温度状况
         canvas.save();
         canvas.drawText(stringLKWDZK,getWidth()/2-centerImg.getWidth()/2,getHeight()/2+0.7f*arcRadius+70,paintOthers);
         String str =null;
@@ -487,7 +487,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void drawTemp(Canvas canvas) {
+    private void drawTemp(Canvas canvas) { //画中间温度和小圆点
         canvas.save();
         canvas.translate(getWidth() / 2, getHeight() / 2);
         float tempWidth = paintTemp.measureText(temperature + "");
@@ -512,7 +512,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void caculateAngle(int currentTemp){
+    private void caculateAngle(int currentTemp){ //根据温度计算角度
         if(currentTemp<middleTemp){
             if(currentTemp<minTemp){
                 rotateAngle=middleTemp;
@@ -530,7 +530,7 @@ public class TempertureView extends View {
         }
     }
 
-    private void drawBitmap(Canvas canvas) {
+    private void drawBitmap(Canvas canvas) { //画中间圆
         canvas.save();
         matrix.setTranslate((getWidth()-centerImg.getWidth()) / 2, (getHeight()-centerImg.getHeight()) / 2);
         caculateAngle(temperature);
@@ -539,7 +539,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void draw2Line(Canvas canvas) {
+    private void draw2Line(Canvas canvas) { //画两边封闭线段
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(-135);
@@ -549,7 +549,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void drawCircle(Canvas canvas) {
+    private void drawCircle(Canvas canvas) { //画中间阴影圆
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         if(linearGradient==null){
@@ -560,7 +560,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void drawText(Canvas canvas) {
+    private void drawText(Canvas canvas) { //画温度刻度
         canvas.save();
         canvas.drawText(string030,getWidth()/2-0.7f*arcRadius-80,getHeight()/2+0.7f*arcRadius+70,paint);
         canvas.drawText(stringY,getWidth()/2-0.924f*arcRadius-60,getHeight()/2+0.383f*arcRadius+35,paintText);
@@ -578,7 +578,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void drawScale(Canvas canvas) {
+    private void drawScale(Canvas canvas) { //画刻度
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(-120);
@@ -593,7 +593,7 @@ public class TempertureView extends View {
         canvas.restore();
     }
 
-    private void drawArc(Canvas canvas) {
+    private void drawArc(Canvas canvas) { //画最外圈弧
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(135);
@@ -614,11 +614,11 @@ public class TempertureView extends View {
                 getResources().getDisplayMetrics());
     }
 
-    public void setTemperature(int temp){
+    public void setTemperature(int temp){ //设置当前温度
         this.temperature = temp;
         postInvalidate();
     }
-    public void setPrecentTemp(int minT,int maxT,int p2T,int p02T,int p1T,int p01T){
+    public void setPrecentTemp(int minT,int maxT,int p2T,int p02T,int p1T,int p01T){ //设置最大最小左2左1右2右1温度
         this.minTemp = minT;
         this.maxTemp = maxT;
         this.precent2Temp = p2T;
