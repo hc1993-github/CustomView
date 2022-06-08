@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TempertureView extends View {
-    private static final String TAG = "huachen";
     private int width;
-    private int height;
     private int arcRadius;
     Paint paint;
     Paint paintScale;
@@ -72,7 +70,6 @@ public class TempertureView extends View {
     Matrix matrix;
     public TempertureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        matrix = new Matrix();
         ininStrings();
         initTempColorsDatas();
         initPaints();
@@ -80,6 +77,7 @@ public class TempertureView extends View {
     }
 
     private void ininStrings() {
+        matrix = new Matrix();
         string030 = minTemp+stringDegree;
         string020 = precent02Temp+stringDegree;
         string010 = precent01Temp+stringDegree;
@@ -238,7 +236,7 @@ public class TempertureView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        width = height = Math.min(h,w);
+        width = Math.min(h,w);
         arcRadius = width/2-dp2px(20)-dp2px(20);
     }
 
@@ -258,190 +256,22 @@ public class TempertureView extends View {
 
     private void drawHuan(Canvas canvas) { //画渐变色圈
         canvas.save();
+        int i1 = centerImg.getWidth() / 2 * 15 / 210;
+        int i2 = centerImg.getWidth() / 2 * 275 / 210;
+        int i3 = centerImg.getWidth() / 2 * 10 / 210;
+        int i4 = centerImg.getWidth() / 2 * 325 / 210;
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(45);//-30
         paintHuan.setColor(tempColors.get(0));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*3/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-29
-        paintHuan.setColor(tempColors.get(1));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-28
-        paintHuan.setColor(tempColors.get(2));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-27
-        paintHuan.setColor(tempColors.get(3));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-26
-        paintHuan.setColor(tempColors.get(4));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-25
-        paintHuan.setColor(tempColors.get(5));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-24
-        paintHuan.setColor(tempColors.get(6));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-23
-        paintHuan.setColor(tempColors.get(7));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-22
-        paintHuan.setColor(tempColors.get(8));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-21
-        paintHuan.setColor(tempColors.get(9));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-20
-        paintHuan.setColor(tempColors.get(10));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-19
-        paintHuan.setColor(tempColors.get(11));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-18
-        paintHuan.setColor(tempColors.get(12));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-17
-        paintHuan.setColor(tempColors.get(13));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-16
-        paintHuan.setColor(tempColors.get(14));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-15
-        paintHuan.setColor(tempColors.get(15));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-14
-        paintHuan.setColor(tempColors.get(16));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-13
-        paintHuan.setColor(tempColors.get(17));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-12
-        paintHuan.setColor(tempColors.get(18));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-11
-        paintHuan.setColor(tempColors.get(19));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-10
-        paintHuan.setColor(tempColors.get(20));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-9
-        paintHuan.setColor(tempColors.get(21));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-8
-        paintHuan.setColor(tempColors.get(22));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-7
-        paintHuan.setColor(tempColors.get(23));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-6
-        paintHuan.setColor(tempColors.get(24));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-5
-        paintHuan.setColor(tempColors.get(25));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-4
-        paintHuan.setColor(tempColors.get(26));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-3
-        paintHuan.setColor(tempColors.get(27));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-2
-        paintHuan.setColor(tempColors.get(28));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//-1
-        paintHuan.setColor(tempColors.get(29));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//0
-        paintHuan.setColor(tempColors.get(30));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//1
-        paintHuan.setColor(tempColors.get(31));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//2
-        paintHuan.setColor(tempColors.get(32));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//3
-        paintHuan.setColor(tempColors.get(33));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//4
-        paintHuan.setColor(tempColors.get(34));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//5
-        paintHuan.setColor(tempColors.get(35));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//6
-        paintHuan.setColor(tempColors.get(36));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//7
-        paintHuan.setColor(tempColors.get(37));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//8
-        paintHuan.setColor(tempColors.get(38));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//9
-        paintHuan.setColor(tempColors.get(39));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//10
-        paintHuan.setColor(tempColors.get(40));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//11
-        paintHuan.setColor(tempColors.get(41));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//12
-        paintHuan.setColor(tempColors.get(42));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//13
-        paintHuan.setColor(tempColors.get(43));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//14
-        paintHuan.setColor(tempColors.get(44));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//15
-        paintHuan.setColor(tempColors.get(45));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//16
-        paintHuan.setColor(tempColors.get(46));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//17
-        paintHuan.setColor(tempColors.get(47));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//18
-        paintHuan.setColor(tempColors.get(48));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//19
-        paintHuan.setColor(tempColors.get(49));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//20
-        paintHuan.setColor(tempColors.get(50));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//21
-        paintHuan.setColor(tempColors.get(51));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//22
-        paintHuan.setColor(tempColors.get(52));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//23
-        paintHuan.setColor(tempColors.get(53));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//24
-        paintHuan.setColor(tempColors.get(54));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//25
-        paintHuan.setColor(tempColors.get(55));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//26
-        paintHuan.setColor(tempColors.get(56));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//27
-        paintHuan.setColor(tempColors.get(57));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//28
-        paintHuan.setColor(tempColors.get(58));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
-        canvas.rotate(4.5f);//29
-        paintHuan.setColor(tempColors.get(59));
-        canvas.drawRect(-(centerImg.getWidth()/2*15/210)-10,(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
+        canvas.drawRect(-(i1)-10,(i2),(centerImg.getWidth()/2*3/210),(i4),paintHuan);
+        for(int j=1;j<60;j++){
+            canvas.rotate(4.5f);//-29
+            paintHuan.setColor(tempColors.get(j));
+            canvas.drawRect(-(i1)-10,(i2),(i3),(i4),paintHuan);
+        }
         canvas.rotate(4.5f);//30
         paintHuan.setColor(tempColors.get(60));
-        canvas.drawRect(-(centerImg.getWidth()/2*0/210),(centerImg.getWidth()/2*275/210),(centerImg.getWidth()/2*10/210),(centerImg.getWidth()/2*325/210),paintHuan);
+        canvas.drawRect(-(centerImg.getWidth()/2*0/210),(i2),(i3),(i4),paintHuan);
         canvas.restore();
     }
 
