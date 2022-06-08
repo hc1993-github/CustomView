@@ -1,18 +1,21 @@
 package com.example.customview;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -26,9 +29,15 @@ public class TempertureView extends View {
     private int height;
     private int arcRadius;
     Paint paint;
-    Paint paintYouLiang;
-    Paint tempPaint;
-    Paint huanPaint;
+    Paint paintScale;
+    Paint paintArc;
+    Paint paintText;
+    Paint paintCircle;
+    Paint paint2Line;
+    Paint paintHuan;
+    Paint paintBitmap;
+    Paint paintTemp;
+    Paint paintOthers;
     RectF rect;
     Rect r30;
     Rect r0;
@@ -36,54 +45,118 @@ public class TempertureView extends View {
     Rect r10;
     Rect rYou;
     Rect rLengKu;
-    Paint centerImgPaint;
     float rotateAngle;
-    int temperature = 10;
+    int temperature = 0;
     int minTemp = -30;
     int maxTemp = 30;
-    Bitmap centerImg = BitmapFactory.decodeResource(getResources(),
-            R.drawable.center2);
+    Bitmap centerImg = BitmapFactory.decodeResource(getResources(),R.drawable.center);
     List<Integer> tempColors;
+    List<Integer> paintColors;
+    String string030 = "-30°";
+    String string020 = "-20°";
+    String string010 = "-10°";
+    String string0 = "0°";
+    String string10 = "10°";
+    String string20 = "20°";
+    String string30 = "30°";
+    String stringZD = "中等";
+    String stringY = "优";
+    String stringL = "良";
+    String stringGR = "过热";
+    String stringWX = "危险";
+    String stringLKWDZK = "冷库温度状况:";
+    LinearGradient linearGradient;
+    Matrix matrix;
     public TempertureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        matrix = new Matrix();
         initTempColorsDatas();
+        initPaints();
+        initRects();
+    }
+
+    private void initRects() {
         r30 = new Rect();
         r0 = new Rect();
         rNormal = new Rect();
         r10 = new Rect();
         rYou = new Rect();
         rLengKu = new Rect();
-        centerImgPaint = new Paint();
-        huanPaint = new Paint();
-        huanPaint.setColor(tempColors.get(0));
-        huanPaint.setStyle(Paint.Style.FILL);
+        paintScale.getTextBounds(string030,0,string030.length(),r30);
+        paintScale.getTextBounds(string0,0,string0.length(),r0);
+        paintScale.getTextBounds(stringZD,0,stringZD.length(),rNormal);
+        paintScale.getTextBounds(string10,0,string10.length(),r10);
+        paintScale.getTextBounds(stringY,0,stringY.length(),rYou);
+        paintScale.getTextBounds(stringLKWDZK,0,stringLKWDZK.length(),rLengKu);
+    }
+
+    private void initPaints() {
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setTextSize(sp2px(15));
         paint.setStrokeWidth(3);
-        paint.setColor(Color.parseColor("#B6B5B5"));
-        paint.setStyle(Paint.Style.STROKE);
-        paint.getTextBounds("-30°",0,"-30°".length(),r30);
-        paint.getTextBounds("0°",0,"0°".length(),r0);
-        paint.getTextBounds("中等",0,"中等".length(),rNormal);
-        paint.getTextBounds("10°",0,"10°".length(),r10);
-        paint.getTextBounds("优",0,"优".length(),rYou);
-        paint.getTextBounds("冷库温度状况:",0,"冷库温度状况:".length(),rLengKu);
-        paintYouLiang = new Paint();
-        paintYouLiang.setAntiAlias(true);
-        paintYouLiang.setTextSize(sp2px(12));
-        paintYouLiang.setStrokeWidth(3);
-        paintYouLiang.setColor(Color.parseColor("#B6B5B5"));
-        paintYouLiang.setStyle(Paint.Style.STROKE);
+        paint.setColor(paintColors.get(0));
+        paint.setStyle(Paint.Style.FILL);
 
-        tempPaint = new Paint();
-        tempPaint.setAntiAlias(true);
-        tempPaint.setTextSize(sp2px(40));
-        tempPaint.setColor(Color.parseColor("#E27A3F"));
-        tempPaint.setStyle(Paint.Style.STROKE);
+        paintScale = new Paint();
+        paintScale.setAntiAlias(true);
+        paintScale.setTextSize(sp2px(15));
+        paintScale.setStrokeWidth(3);
+        paintScale.setColor(paintColors.get(1));
+        paintScale.setStyle(Paint.Style.STROKE);
+
+        paintArc = new Paint();
+        paintArc.setAntiAlias(true);
+        paintArc.setTextSize(sp2px(15));
+        paintArc.setStrokeWidth(3);
+        paintArc.setColor(paintColors.get(1));
+        paintArc.setStyle(Paint.Style.STROKE);
+
+        paintText = new Paint();
+        paintText.setAntiAlias(true);
+        paintText.setTextSize(sp2px(12));
+        paintText.setStrokeWidth(3);
+        paintText.setColor(paintColors.get(2));
+        paintText.setStyle(Paint.Style.FILL);
+
+        paintCircle = new Paint();
+        paintCircle.setStyle(Paint.Style.FILL);
+
+        paint2Line = new Paint();
+        paint2Line.setAntiAlias(true);
+        paint2Line.setTextSize(sp2px(15));
+        paint2Line.setStrokeWidth(3);
+        paint2Line.setColor(paintColors.get(3));
+        paint2Line.setStyle(Paint.Style.STROKE);
+
+        paintHuan = new Paint();
+        paintHuan.setColor(tempColors.get(0));
+        paintHuan.setStyle(Paint.Style.FILL);
+
+        paintBitmap = new Paint();
+
+        paintTemp = new Paint();
+        paintTemp.setAntiAlias(true);
+        paintTemp.setTextSize(sp2px(40));
+        paintTemp.setColor(paintColors.get(4));
+        paintTemp.setStyle(Paint.Style.FILL);
+
+        paintOthers = new Paint();
+        paintOthers.setAntiAlias(true);
+        paintOthers.setTextSize(sp2px(15));
+        paintOthers.setStrokeWidth(3);
+        paintOthers.setColor(paintColors.get(5));
+        paintOthers.setStyle(Paint.Style.FILL);
     }
 
     private void initTempColorsDatas() {
+        paintColors = new ArrayList<>();
+        paintColors.add(Color.parseColor("#6f6f6f"));
+        paintColors.add(Color.parseColor("#ebebeb"));
+        paintColors.add(Color.parseColor("#cccccc"));
+        paintColors.add(Color.parseColor("#f4f3f3"));
+        paintColors.add(Color.parseColor("#E27A3F"));
+        paintColors.add(Color.parseColor("#b3b3b3"));
         tempColors = new ArrayList<>();
         tempColors.add(Color.parseColor("#46a012"));//-30
         tempColors.add(Color.parseColor("#46a012"));//-29
@@ -173,254 +246,252 @@ public class TempertureView extends View {
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(45);//-30
-        huanPaint.setColor(tempColors.get(0));
-        canvas.drawRect(-15,275,3,325,huanPaint);
+        paintHuan.setColor(tempColors.get(0));
+        canvas.drawRect(-15,275,3,325,paintHuan);
         canvas.rotate(4.5f);//-29
-        huanPaint.setColor(tempColors.get(1));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(1));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-28
-        huanPaint.setColor(tempColors.get(2));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(2));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-27
-        huanPaint.setColor(tempColors.get(3));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(3));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-26
-        huanPaint.setColor(tempColors.get(4));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(4));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-25
-        huanPaint.setColor(tempColors.get(5));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(5));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-24
-        huanPaint.setColor(tempColors.get(6));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(6));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-23
-        huanPaint.setColor(tempColors.get(7));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(7));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-22
-        huanPaint.setColor(tempColors.get(8));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(8));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-21
-        huanPaint.setColor(tempColors.get(9));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(9));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-20
-        huanPaint.setColor(tempColors.get(10));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(10));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-19
-        huanPaint.setColor(tempColors.get(11));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(11));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-18
-        huanPaint.setColor(tempColors.get(12));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(12));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-17
-        huanPaint.setColor(tempColors.get(13));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(13));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-16
-        huanPaint.setColor(tempColors.get(14));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(14));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-15
-        huanPaint.setColor(tempColors.get(15));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(15));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-14
-        huanPaint.setColor(tempColors.get(16));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(16));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-13
-        huanPaint.setColor(tempColors.get(17));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(17));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-12
-        huanPaint.setColor(tempColors.get(18));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(18));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-11
-        huanPaint.setColor(tempColors.get(19));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(19));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-10
-        huanPaint.setColor(tempColors.get(20));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(20));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-9
-        huanPaint.setColor(tempColors.get(21));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(21));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-8
-        huanPaint.setColor(tempColors.get(22));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(22));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-7
-        huanPaint.setColor(tempColors.get(23));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(23));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-6
-        huanPaint.setColor(tempColors.get(24));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(24));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-5
-        huanPaint.setColor(tempColors.get(25));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(25));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-4
-        huanPaint.setColor(tempColors.get(26));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(26));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-3
-        huanPaint.setColor(tempColors.get(27));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(27));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-2
-        huanPaint.setColor(tempColors.get(28));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(28));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//-1
-        huanPaint.setColor(tempColors.get(29));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(29));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//0
-        huanPaint.setColor(tempColors.get(30));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(30));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//1
-        huanPaint.setColor(tempColors.get(31));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(31));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//2
-        huanPaint.setColor(tempColors.get(32));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(32));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//3
-        huanPaint.setColor(tempColors.get(33));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(33));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//4
-        huanPaint.setColor(tempColors.get(34));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(34));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//5
-        huanPaint.setColor(tempColors.get(35));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(35));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//6
-        huanPaint.setColor(tempColors.get(36));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(36));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//7
-        huanPaint.setColor(tempColors.get(37));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(37));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//8
-        huanPaint.setColor(tempColors.get(38));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(38));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//9
-        huanPaint.setColor(tempColors.get(39));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(39));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//10
-        huanPaint.setColor(tempColors.get(40));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(40));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//11
-        huanPaint.setColor(tempColors.get(41));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(41));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//12
-        huanPaint.setColor(tempColors.get(42));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(42));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//13
-        huanPaint.setColor(tempColors.get(43));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(43));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//14
-        huanPaint.setColor(tempColors.get(44));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(44));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//15
-        huanPaint.setColor(tempColors.get(45));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(45));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//16
-        huanPaint.setColor(tempColors.get(46));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(46));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//17
-        huanPaint.setColor(tempColors.get(47));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(47));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//18
-        huanPaint.setColor(tempColors.get(48));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(48));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//19
-        huanPaint.setColor(tempColors.get(49));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(49));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//20
-        huanPaint.setColor(tempColors.get(50));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(50));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//21
-        huanPaint.setColor(tempColors.get(51));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(51));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//22
-        huanPaint.setColor(tempColors.get(52));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(52));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//23
-        huanPaint.setColor(tempColors.get(53));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(53));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//24
-        huanPaint.setColor(tempColors.get(54));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(54));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//25
-        huanPaint.setColor(tempColors.get(55));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(55));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//26
-        huanPaint.setColor(tempColors.get(56));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(56));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//27
-        huanPaint.setColor(tempColors.get(57));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(57));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//28
-        huanPaint.setColor(tempColors.get(58));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(58));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//29
-        huanPaint.setColor(tempColors.get(59));
-        canvas.drawRect(-15,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(59));
+        canvas.drawRect(-15,275,10,325,paintHuan);
         canvas.rotate(4.5f);//30
-        huanPaint.setColor(tempColors.get(60));
-        canvas.drawRect(0,275,10,325,huanPaint);
+        paintHuan.setColor(tempColors.get(60));
+        canvas.drawRect(0,275,10,325,paintHuan);
         canvas.restore();
     }
 
     private void drawOthers(Canvas canvas) {
         canvas.save();
-        canvas.drawText("冷库温度状况:",getWidth()/2-centerImg.getWidth()/2,getHeight()/2+0.7f*arcRadius+70,paint);
+        canvas.drawText(stringLKWDZK,getWidth()/2-centerImg.getWidth()/2,getHeight()/2+0.7f*arcRadius+70,paintOthers);
         String str =null;
         if(temperature<0){
             if(temperature<minTemp){
                 temperature=minTemp;
             }
             int abs = Math.abs(temperature);
-            huanPaint.setColor(tempColors.get(maxTemp-abs));
+            paintOthers.setColor(tempColors.get(maxTemp-abs));
             if(temperature<=-20){
-                str = "优";
+                str = stringY;
             }else if(temperature<=-10){
-                str = "良";
+                str = stringL;
             }else {
-                str = "中等";
+                str = stringZD;
             }
         }else if(temperature==0){
-            huanPaint.setColor(tempColors.get(maxTemp));
-            str = "中等";
+            paintOthers.setColor(tempColors.get(maxTemp));
+            str = stringZD;
         }else if(temperature>0){
             if(temperature>maxTemp){
                 temperature=maxTemp;
             }
             if(temperature>=20){
-                str = "危险";
+                str = stringWX;
             }else if(temperature>=10){
-                str = "过热";
+                str = stringGR;
             }else {
-                str = "中等";
+                str = stringZD;
             }
-            huanPaint.setColor(tempColors.get(maxTemp+temperature));
+            paintOthers.setColor(tempColors.get(maxTemp+temperature));
         }
-        canvas.drawRect(getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+20,getHeight()/2+0.7f*arcRadius+60-rLengKu.height()/3*2,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+100,getHeight()/2+0.7f*arcRadius+60+rLengKu.height()/3,huanPaint);
-
-        canvas.drawText(str,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+120,getHeight()/2+0.7f*arcRadius+70,paint);
+        canvas.drawRect(getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+20,getHeight()/2+0.7f*arcRadius+60-rLengKu.height()/3*2,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+100,getHeight()/2+0.7f*arcRadius+60+rLengKu.height()/3,paintOthers);
+        paintOthers.setColor(paintColors.get(5));
+        canvas.drawText(str,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+120,getHeight()/2+0.7f*arcRadius+70,paintOthers);
         canvas.restore();
     }
 
     private void drawTemp(Canvas canvas) {
         canvas.save();
         canvas.translate(getWidth() / 2, getHeight() / 2);
-
-        float tempWidth = tempPaint.measureText(temperature + "");
-        float tempHeight = (tempPaint.ascent() + tempPaint.descent()) / 2;
+        float tempWidth = paintTemp.measureText(temperature + "");
+        float tempHeight = (paintTemp.ascent() + paintTemp.descent()) / 2;
         if(temperature<0){
             if(temperature<minTemp){
                 temperature=minTemp;
             }
             int abs = Math.abs(temperature);
-            tempPaint.setColor(tempColors.get(maxTemp-abs));
+            paintTemp.setColor(tempColors.get(maxTemp-abs));
         }else if(temperature==0){
-            tempPaint.setColor(tempColors.get(maxTemp));
+            paintTemp.setColor(tempColors.get(maxTemp));
         }else if(temperature>0){
             if(temperature>maxTemp){
                 temperature=maxTemp;
             }
-            tempPaint.setColor(tempColors.get(maxTemp+temperature));
+            paintTemp.setColor(tempColors.get(maxTemp+temperature));
         }
-        canvas.drawText(temperature + "°", -tempWidth / 2 - dp2px(5), -tempHeight, tempPaint);
+        canvas.drawText(temperature + "°", -tempWidth / 2 - dp2px(5), -tempHeight, paintTemp);
         canvas.rotate(rotateAngle);
-        tempPaint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(0-centerImg.getWidth()/2+0.7f*125,0+centerImg.getWidth()/2-0.7f*125,10,tempPaint);
+        canvas.drawCircle(0-centerImg.getWidth()/2+0.7f*130,0+centerImg.getWidth()/2-0.7f*130,10,paintTemp);
         canvas.restore();
     }
 
@@ -444,47 +515,49 @@ public class TempertureView extends View {
 
     private void drawBitmap(Canvas canvas) {
         canvas.save();
-        Matrix matrix = new Matrix();
         matrix.setTranslate((getWidth()-centerImg.getWidth()) / 2, (getHeight()-centerImg.getHeight()) / 2);
         caculateAngle(temperature);
         matrix.postRotate(-22.5f+rotateAngle,getWidth()/2,getHeight()/2);
-        canvas.drawBitmap(centerImg,matrix,centerImgPaint);
+        canvas.drawBitmap(centerImg,matrix,paintBitmap);
         canvas.restore();
     }
-
 
     private void draw2Line(Canvas canvas) {
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
         canvas.rotate(-135);
-        canvas.drawLine(0, -(getHeight()/2)+202, 0, -(getHeight()/2)+102, paint);
+        canvas.drawLine(0, -(getHeight()/2)+202, 0, -(getHeight()/2)+102, paint2Line);
         canvas.rotate(-90);
-        canvas.drawLine(0, -(getHeight()/2)+202, 0, -(getHeight()/2)+102, paint);
+        canvas.drawLine(0, -(getHeight()/2)+202, 0, -(getHeight()/2)+102, paint2Line);
         canvas.restore();
     }
 
     private void drawCircle(Canvas canvas) {
         canvas.save();
         canvas.translate(getWidth()/2,getHeight()/2);
-        canvas.drawCircle(0,0,arcRadius-100,paint);
+        if(linearGradient==null){
+            linearGradient = new LinearGradient(getWidth()/2,getHeight()/2-arcRadius+100,getWidth()/2,getHeight()/2+arcRadius-100,Color.parseColor("#FFFFFFFF"),Color.parseColor("#e7e7e7"), Shader.TileMode.MIRROR);
+            paintCircle.setShader(linearGradient);
+        }
+        canvas.drawCircle(0,0,arcRadius-110,paintCircle);
         canvas.restore();
     }
 
     private void drawText(Canvas canvas) {
         canvas.save();
-        canvas.drawText("-30°",getWidth()/2-0.7f*arcRadius-80,getHeight()/2+0.7f*arcRadius+70,paint);
-        canvas.drawText("优",getWidth()/2-0.924f*arcRadius-60,getHeight()/2+0.383f*arcRadius+35,paintYouLiang);
-        canvas.drawText("-20°",getWidth()/2-1.0f*arcRadius-35-r30.width(),getHeight()/2+r30.height()/2,paint);
-        canvas.drawText("良",getWidth()/2-0.924f*arcRadius-60,getHeight()/2-0.383f*arcRadius-20,paintYouLiang);
-        canvas.drawText("-10°",getWidth()/2-0.7f*arcRadius-80,getHeight()/2-0.7f*arcRadius-40,paint);
-        canvas.drawText("中等",getWidth()/2-0.383f*arcRadius-rNormal.width(),getHeight()/2-0.924f*arcRadius-30,paintYouLiang);
-        canvas.drawText("0°",getWidth()/2-r0.width()/2,getHeight()/2-arcRadius-r0.height()-20,paint);
-        canvas.drawText("中等",getWidth()/2+0.383f*arcRadius,getHeight()/2-0.924f*arcRadius-30,paintYouLiang);
-        canvas.drawText("10°",getWidth()/2+0.7f*arcRadius+r10.width()/2,getHeight()/2-0.7f*arcRadius-40,paint);
-        canvas.drawText("过热",getWidth()/2+0.924f*arcRadius+rNormal.width()/2,getHeight()/2-0.383f*arcRadius-20,paintYouLiang);
-        canvas.drawText("20°",getWidth()/2+arcRadius+35,getHeight()/2+r30.height()/2,paint);
-        canvas.drawText("危险",getWidth()/2+0.924f*arcRadius+rNormal.width()/2,getHeight()/2+0.383f*arcRadius+35,paintYouLiang);
-        canvas.drawText("30°",getWidth()/2+0.7f*arcRadius+r10.width()/2,getHeight()/2+0.7f*arcRadius+70,paint);
+        canvas.drawText(string030,getWidth()/2-0.7f*arcRadius-80,getHeight()/2+0.7f*arcRadius+70,paint);
+        canvas.drawText(stringY,getWidth()/2-0.924f*arcRadius-60,getHeight()/2+0.383f*arcRadius+35,paintText);
+        canvas.drawText(string020,getWidth()/2-1.0f*arcRadius-35-r30.width(),getHeight()/2+r30.height()/2,paint);
+        canvas.drawText(stringL,getWidth()/2-0.924f*arcRadius-60,getHeight()/2-0.383f*arcRadius-20,paintText);
+        canvas.drawText(string010,getWidth()/2-0.7f*arcRadius-80,getHeight()/2-0.7f*arcRadius-40,paint);
+        canvas.drawText(stringZD,getWidth()/2-0.383f*arcRadius-rNormal.width(),getHeight()/2-0.924f*arcRadius-30,paintText);
+        canvas.drawText(string0,getWidth()/2-r0.width()/2,getHeight()/2-arcRadius-r0.height()-20,paint);
+        canvas.drawText(stringZD,getWidth()/2+0.383f*arcRadius,getHeight()/2-0.924f*arcRadius-30,paintText);
+        canvas.drawText(string10,getWidth()/2+0.7f*arcRadius+r10.width()/2,getHeight()/2-0.7f*arcRadius-40,paint);
+        canvas.drawText(stringGR,getWidth()/2+0.924f*arcRadius+rNormal.width()/2,getHeight()/2-0.383f*arcRadius-20,paintText);
+        canvas.drawText(string20,getWidth()/2+arcRadius+35,getHeight()/2+r30.height()/2,paint);
+        canvas.drawText(stringWX,getWidth()/2+0.924f*arcRadius+rNormal.width()/2,getHeight()/2+0.383f*arcRadius+35,paintText);
+        canvas.drawText(string30,getWidth()/2+0.7f*arcRadius+r10.width()/2,getHeight()/2+0.7f*arcRadius+70,paint);
         canvas.restore();
     }
 
@@ -494,9 +567,9 @@ public class TempertureView extends View {
         canvas.rotate(-120);
         for(int i=0;i<17;i++){
             if(i==2||i==5||i==8||i==11||i==14){
-                canvas.drawLine(0, -(width/2-dp2px(25)), 0, -(width/2-dp2px(30)) + dp2px(10), paint);
+                canvas.drawLine(0, -(width/2-dp2px(25)), 0, -(width/2-dp2px(30)) + dp2px(10), paintScale);
             }else {
-                canvas.drawLine(0, -(width/2-dp2px(35)), 0, -(width/2-dp2px(30)) + dp2px(10), paint);
+                canvas.drawLine(0, -(width/2-dp2px(35)), 0, -(width/2-dp2px(30)) + dp2px(10), paintScale);
             }
             canvas.rotate(15f);
         }
@@ -510,11 +583,11 @@ public class TempertureView extends View {
         if(rect==null){
             rect = new RectF(-arcRadius,-arcRadius,arcRadius,arcRadius);
         }
-        canvas.drawArc(rect,0,270,false,paint);
+        canvas.drawArc(rect,0,270,false,paintArc);
         canvas.restore();
     }
 
-    public int dp2px(float dp) {
+    private int dp2px(float dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
                 getResources().getDisplayMetrics());
     }
@@ -522,5 +595,10 @@ public class TempertureView extends View {
     private int sp2px(float sp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp,
                 getResources().getDisplayMetrics());
+    }
+
+    public void setTemperature(int temp){
+        this.temperature = temp;
+        invalidate();
     }
 }
