@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -21,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TempertureView extends View {
-    private int width;
-    private int arcRadius;
+    int width;
+    int arcRadius;
     Paint paint;
     Paint paintScale;
     Paint paintArc;
@@ -49,7 +50,7 @@ public class TempertureView extends View {
     int precent02Temp = -20;
     int precent1Temp = 10;
     int precent01Temp = -10;
-    Bitmap centerImg = BitmapFactory.decodeResource(getResources(),R.drawable.center);
+    Bitmap centerImg;
     List<Integer> tempColors;
     List<Integer> paintColors;
     String stringDegree = "°";
@@ -68,16 +69,23 @@ public class TempertureView extends View {
     String stringLKWDZK = "冷库温度状况:";
     LinearGradient linearGradient;
     Matrix matrix;
+    int imgWidth;
+    int imgHeight;
+    int mWidth;
+    int mHeight;
     public TempertureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        ininStrings();
+        initOtherDatas();
         initTempColorsDatas();
         initPaints();
-        initRects();
     }
 
-    private void ininStrings() {
+    private void initOtherDatas() {
+        centerImg = BitmapFactory.decodeResource(getResources(),R.drawable.center);
+        imgWidth = centerImg.getWidth();
+        imgHeight = centerImg.getHeight();
         matrix = new Matrix();
+
         string030 = minTemp+stringDegree;
         string020 = precent02Temp+stringDegree;
         string010 = precent01Temp+stringDegree;
@@ -85,21 +93,6 @@ public class TempertureView extends View {
         string10 = precent1Temp+stringDegree;
         string20 = precent2Temp+stringDegree;
         string30 = maxTemp+stringDegree;
-    }
-
-    private void initRects() {
-        r30 = new Rect();
-        r0 = new Rect();
-        rNormal = new Rect();
-        r10 = new Rect();
-        rYou = new Rect();
-        rLengKu = new Rect();
-        paintScale.getTextBounds(string030,0,string030.length(),r30);
-        paintScale.getTextBounds(string0,0,string0.length(),r0);
-        paintScale.getTextBounds(stringZD,0,stringZD.length(),rNormal);
-        paintScale.getTextBounds(string10,0,string10.length(),r10);
-        paintScale.getTextBounds(stringY,0,stringY.length(),rYou);
-        paintScale.getTextBounds(stringLKWDZK,0,stringLKWDZK.length(),rLengKu);
     }
 
     private void initPaints() {
@@ -159,6 +152,19 @@ public class TempertureView extends View {
         paintOthers.setStrokeWidth(3);
         paintOthers.setColor(paintColors.get(5));
         paintOthers.setStyle(Paint.Style.FILL);
+
+        r30 = new Rect();
+        r0 = new Rect();
+        rNormal = new Rect();
+        r10 = new Rect();
+        rYou = new Rect();
+        rLengKu = new Rect();
+        paintScale.getTextBounds(string030,0,string030.length(),r30);
+        paintScale.getTextBounds(string0,0,string0.length(),r0);
+        paintScale.getTextBounds(stringZD,0,stringZD.length(),rNormal);
+        paintScale.getTextBounds(string10,0,string10.length(),r10);
+        paintScale.getTextBounds(stringY,0,stringY.length(),rYou);
+        paintScale.getTextBounds(stringLKWDZK,0,stringLKWDZK.length(),rLengKu);
     }
 
     private void initTempColorsDatas() {
@@ -169,6 +175,8 @@ public class TempertureView extends View {
         paintColors.add(Color.parseColor("#f4f3f3"));
         paintColors.add(Color.parseColor("#E27A3F"));
         paintColors.add(Color.parseColor("#b3b3b3"));
+        paintColors.add(Color.parseColor("#FFFFFFFF"));
+        paintColors.add(Color.parseColor("#e7e7e7"));
         tempColors = new ArrayList<>();
         tempColors.add(Color.parseColor("#46a012"));//-30
         tempColors.add(Color.parseColor("#46a012"));//-29
@@ -237,7 +245,9 @@ public class TempertureView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         width = Math.min(h,w);
-        arcRadius = width/2-dp2px(20)-dp2px(20);
+        arcRadius = width/2-dp2px(40);
+        mWidth = getWidth();
+        mHeight = getHeight();
     }
 
     @Override
@@ -256,28 +266,28 @@ public class TempertureView extends View {
 
     private void drawHuan(Canvas canvas) { //画渐变色圈
         canvas.save();
-        int i1 = centerImg.getWidth() / 2 * 15 / 210;
-        int i2 = centerImg.getWidth() / 2 * 275 / 210;
-        int i3 = centerImg.getWidth() / 2 * 10 / 210;
-        int i4 = centerImg.getWidth() / 2 * 325 / 210;
-        canvas.translate(getWidth()/2,getHeight()/2);
-        canvas.rotate(45);//-30
+        int i1 = imgWidth / 2 * 15 / 210;
+        int i2 = imgWidth / 2 * 275 / 210;
+        int i3 = imgWidth / 2 * 10 / 210;
+        int i4 = imgWidth / 2 * 325 / 210;
+        canvas.translate(mWidth/2,mHeight/2);
+        canvas.rotate(45);
         paintHuan.setColor(tempColors.get(0));
-        canvas.drawRect(-(i1)-10,(i2),(centerImg.getWidth()/2*3/210),(i4),paintHuan);
+        canvas.drawRect(-i1-10,i2,imgWidth/2*3/210,i4,paintHuan);
         for(int j=1;j<60;j++){
-            canvas.rotate(4.5f);//-29
+            canvas.rotate(4.5f);
             paintHuan.setColor(tempColors.get(j));
-            canvas.drawRect(-(i1)-10,(i2),(i3),(i4),paintHuan);
+            canvas.drawRect(-i1-10,i2,i3,i4,paintHuan);
         }
-        canvas.rotate(4.5f);//30
+        canvas.rotate(4.5f);
         paintHuan.setColor(tempColors.get(60));
-        canvas.drawRect(-(centerImg.getWidth()/2*0/210),(i2),(i3),(i4),paintHuan);
+        canvas.drawRect(-imgWidth/2*0/210,i2,i3,i4,paintHuan);
         canvas.restore();
     }
 
     private void drawOthers(Canvas canvas) { //画中间温度状况
         canvas.save();
-        canvas.drawText(stringLKWDZK,getWidth()/2-centerImg.getWidth()/2,getHeight()/2+0.7f*arcRadius+(centerImg.getWidth()/2*70/240),paintOthers);
+        canvas.drawText(stringLKWDZK,mWidth/2-imgWidth/2,mHeight/2+0.7f*arcRadius+(imgWidth/2*70/240),paintOthers);
         String str =null;
         if(temperature<middleTemp){
             if(temperature<minTemp){
@@ -308,15 +318,15 @@ public class TempertureView extends View {
             }
             paintOthers.setColor(tempColors.get(60-(int) ((maxTemp-temperature)*(135f/maxTemp)*60/270)));
         }
-        canvas.drawRect(getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+(centerImg.getWidth()/2*20/240),getHeight()/2+0.7f*arcRadius+(centerImg.getWidth()/2*60/240)-rLengKu.height()/3*2,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+(centerImg.getWidth()/2*100/240),getHeight()/2+0.7f*arcRadius+(centerImg.getWidth()/2*60/240)+rLengKu.height()/3,paintOthers);
+        canvas.drawRect(mWidth/2-imgWidth/2+rLengKu.width()+imgWidth/2*20/240,mHeight/2+0.7f*arcRadius+imgWidth/2*60/240-rLengKu.height()/3*2,mWidth/2-imgWidth/2+rLengKu.width()+imgWidth/2*100/240,mHeight/2+0.7f*arcRadius+imgWidth/2*60/240+rLengKu.height()/3,paintOthers);
         paintOthers.setColor(paintColors.get(5));
-        canvas.drawText(str,getWidth()/2-centerImg.getWidth()/2+rLengKu.width()+(centerImg.getWidth()/2*120/240),getHeight()/2+0.7f*arcRadius+(centerImg.getWidth()/2*70/240),paintOthers);
+        canvas.drawText(str,mWidth/2-imgWidth/2+rLengKu.width()+imgWidth/2*120/240,mHeight/2+0.7f*arcRadius+imgWidth/2*70/240,paintOthers);
         canvas.restore();
     }
 
     private void drawTemp(Canvas canvas) { //画中间温度和小圆点
         canvas.save();
-        canvas.translate(getWidth() / 2, getHeight() / 2);
+        canvas.translate(mWidth / 2, mHeight / 2);
         float tempWidth = paintTemp.measureText(temperature + "");
         float tempHeight = (paintTemp.ascent() + paintTemp.descent()) / 2;
         if(temperature<middleTemp){
@@ -335,7 +345,7 @@ public class TempertureView extends View {
         }
         canvas.drawText(temperature + stringDegree, -tempWidth / 2 - dp2px(5), -tempHeight, paintTemp);
         canvas.rotate(rotateAngle);
-        canvas.drawCircle(0-centerImg.getWidth()/2+0.7f*(centerImg.getWidth()/2*150/240),0+centerImg.getWidth()/2-0.7f*(centerImg.getWidth()/2*150/240),(centerImg.getWidth()/2*10/240),paintTemp);
+        canvas.drawCircle(0-imgWidth/2+0.7f*(imgWidth/2*150/240),0+imgWidth/2-0.7f*(imgWidth/2*150/240),(imgWidth/2*10/240),paintTemp);
         canvas.restore();
     }
 
@@ -359,61 +369,61 @@ public class TempertureView extends View {
 
     private void drawBitmap(Canvas canvas) { //画中间圆
         canvas.save();
-        matrix.setTranslate((getWidth()-centerImg.getWidth()) / 2, (getHeight()-centerImg.getHeight()) / 2);
+        matrix.setTranslate((mWidth-imgWidth) / 2, (mHeight-imgHeight) / 2);
         caculateAngle(temperature);
-        matrix.postRotate(-22.5f+rotateAngle,getWidth()/2,getHeight()/2);
+        matrix.postRotate(-22.5f+rotateAngle,mWidth/2,mHeight/2);
         canvas.drawBitmap(centerImg,matrix,paintBitmap);
         canvas.restore();
     }
 
     private void draw2Line(Canvas canvas) { //画两边封闭线段
         canvas.save();
-        canvas.translate(getWidth()/2,getHeight()/2);
+        canvas.translate(mWidth/2,mHeight/2);
         canvas.rotate(-135);
-        canvas.drawLine(0, -(getHeight()/2)+(centerImg.getWidth()/2*202/210), 0, -(getHeight()/2)+(centerImg.getWidth()/2*102/210), paint2Line);
+        canvas.drawLine(0, -mHeight/2+imgWidth/2*202/210, 0, -mHeight/2+imgWidth/2*102/210, paint2Line);
         canvas.rotate(-90);
-        canvas.drawLine(0, -(getHeight()/2)+(centerImg.getWidth()/2*202/210), 0, -(getHeight()/2)+(centerImg.getWidth()/2*102/210), paint2Line);
+        canvas.drawLine(0, -mHeight/2+imgWidth/2*202/210, 0, -mHeight/2+imgWidth/2*102/210, paint2Line);
         canvas.restore();
     }
 
     private void drawCircle(Canvas canvas) { //画中间阴影圆
         canvas.save();
-        canvas.translate(getWidth()/2,getHeight()/2);
+        canvas.translate(mWidth/2,mHeight/2);
         if(linearGradient==null){
-            linearGradient = new LinearGradient(getWidth()/2,getHeight()/2-arcRadius+(centerImg.getWidth()/2*100/210),getWidth()/2,getHeight()/2+arcRadius-(centerImg.getWidth()/2*100/210),Color.parseColor("#FFFFFFFF"),Color.parseColor("#e7e7e7"), Shader.TileMode.MIRROR);
+            linearGradient = new LinearGradient(mWidth/2,mHeight/2-arcRadius+imgWidth/2*100/210,mWidth/2,mHeight/2+arcRadius-imgWidth/2*100/210,paintColors.get(6),paintColors.get(7), Shader.TileMode.MIRROR);
             paintCircle.setShader(linearGradient);
         }
-        canvas.drawCircle(0,0,arcRadius-(centerImg.getWidth()/2*110/210),paintCircle);
+        canvas.drawCircle(0,0,arcRadius-imgWidth/2*110/210,paintCircle);
         canvas.restore();
     }
 
     private void drawText(Canvas canvas) { //画温度刻度
         canvas.save();
-        canvas.drawText(string030,getWidth()/2-0.7f*arcRadius-(centerImg.getWidth()/2*80/210),getHeight()/2+0.7f*arcRadius+(centerImg.getWidth()/2*70/210),paint);
-        canvas.drawText(stringY,getWidth()/2-0.924f*arcRadius-(centerImg.getWidth()/2*60/210),getHeight()/2+0.383f*arcRadius+(centerImg.getWidth()/2*35/210),paintText);
-        canvas.drawText(string020,getWidth()/2-1.0f*arcRadius-(centerImg.getWidth()/2*35/210)-r30.width(),getHeight()/2+r30.height()/2,paint);
-        canvas.drawText(stringL,getWidth()/2-0.924f*arcRadius-(centerImg.getWidth()/2*60/210),getHeight()/2-0.383f*arcRadius-(centerImg.getWidth()/2*20/210),paintText);
-        canvas.drawText(string010,getWidth()/2-0.7f*arcRadius-(centerImg.getWidth()/2*80/210),getHeight()/2-0.7f*arcRadius-(centerImg.getWidth()/2*40/210),paint);
-        canvas.drawText(stringZD,getWidth()/2-0.383f*arcRadius-rNormal.width(),getHeight()/2-0.924f*arcRadius-(centerImg.getWidth()/2*30/210),paintText);
-        canvas.drawText(string0,getWidth()/2-r0.width()/2,getHeight()/2-arcRadius-r0.height()-(centerImg.getWidth()/2*20/210),paint);
-        canvas.drawText(stringZD,getWidth()/2+0.383f*arcRadius,getHeight()/2-0.924f*arcRadius-(centerImg.getWidth()/2*30/210),paintText);
-        canvas.drawText(string10,getWidth()/2+0.7f*arcRadius+r10.width()/2,getHeight()/2-0.7f*arcRadius-(centerImg.getWidth()/2*40/210),paint);
-        canvas.drawText(stringGR,getWidth()/2+0.924f*arcRadius+rNormal.width()/2,getHeight()/2-0.383f*arcRadius-(centerImg.getWidth()/2*20/210),paintText);
-        canvas.drawText(string20,getWidth()/2+arcRadius+(centerImg.getWidth()/2*35/210),getHeight()/2+r30.height()/2,paint);
-        canvas.drawText(stringWX,getWidth()/2+0.924f*arcRadius+rNormal.width()/2,getHeight()/2+0.383f*arcRadius+(centerImg.getWidth()/2*35/210),paintText);
-        canvas.drawText(string30,getWidth()/2+0.7f*arcRadius+r10.width()/2,getHeight()/2+0.7f*arcRadius+(centerImg.getWidth()/2*70/210),paint);
+        canvas.drawText(string030,mWidth/2-0.7f*arcRadius-imgWidth/2*80/210,mHeight/2+0.7f*arcRadius+imgWidth/2*70/210,paint);
+        canvas.drawText(stringY,mWidth/2-0.924f*arcRadius-imgWidth/2*60/210,mHeight/2+0.383f*arcRadius+imgWidth/2*35/210,paintText);
+        canvas.drawText(string020,mWidth/2-1.0f*arcRadius-imgWidth/2*35/210-r30.width(),mHeight/2+r30.height()/2,paint);
+        canvas.drawText(stringL,mWidth/2-0.924f*arcRadius-imgWidth/2*60/210,mHeight/2-0.383f*arcRadius-imgWidth/2*20/210,paintText);
+        canvas.drawText(string010,mWidth/2-0.7f*arcRadius-imgWidth/2*80/210,mHeight/2-0.7f*arcRadius-imgWidth/2*40/210,paint);
+        canvas.drawText(stringZD,mWidth/2-0.383f*arcRadius-rNormal.width(),mHeight/2-0.924f*arcRadius-imgWidth/2*30/210,paintText);
+        canvas.drawText(string0,mWidth/2-r0.width()/2,mHeight/2-arcRadius-r0.height()-imgWidth/2*20/210,paint);
+        canvas.drawText(stringZD,mWidth/2+0.383f*arcRadius,mHeight/2-0.924f*arcRadius-imgWidth/2*30/210,paintText);
+        canvas.drawText(string10,mWidth/2+0.7f*arcRadius+r10.width()/2,mHeight/2-0.7f*arcRadius-imgWidth/2*40/210,paint);
+        canvas.drawText(stringGR,mWidth/2+0.924f*arcRadius+rNormal.width()/2,mHeight/2-0.383f*arcRadius-imgWidth/2*20/210,paintText);
+        canvas.drawText(string20,mWidth/2+arcRadius+imgWidth/2*35/210,mHeight/2+r30.height()/2,paint);
+        canvas.drawText(stringWX,mWidth/2+0.924f*arcRadius+rNormal.width()/2,mHeight/2+0.383f*arcRadius+imgWidth/2*35/210,paintText);
+        canvas.drawText(string30,mWidth/2+0.7f*arcRadius+r10.width()/2,mHeight/2+0.7f*arcRadius+imgWidth/2*70/210,paint);
         canvas.restore();
     }
 
     private void drawScale(Canvas canvas) { //画刻度
         canvas.save();
-        canvas.translate(getWidth()/2,getHeight()/2);
+        canvas.translate(mWidth/2,mHeight/2);
         canvas.rotate(-120);
         for(int i=0;i<17;i++){
             if(i==2||i==5||i==8||i==11||i==14){
-                canvas.drawLine(0, -(width/2-dp2px(25)), 0, -(width/2-dp2px(30)) + dp2px(10), paintScale);
+                canvas.drawLine(0, -arcRadius, 0, -arcRadius - dp2px(10), paintScale);
             }else {
-                canvas.drawLine(0, -(width/2-dp2px(35)), 0, -(width/2-dp2px(30)) + dp2px(10), paintScale);
+                canvas.drawLine(0, -arcRadius, 0, -arcRadius - dp2px(5), paintScale);
             }
             canvas.rotate(15f);
         }
@@ -422,7 +432,7 @@ public class TempertureView extends View {
 
     private void drawArc(Canvas canvas) { //画最外圈弧
         canvas.save();
-        canvas.translate(getWidth()/2,getHeight()/2);
+        canvas.translate(mWidth/2,mHeight/2);
         canvas.rotate(135);
         if(rect==null){
             rect = new RectF(-arcRadius,-arcRadius,arcRadius,arcRadius);
@@ -442,16 +452,16 @@ public class TempertureView extends View {
     }
 
     public void setTemperature(int temp){ //设置当前温度
-        this.temperature = temp;
+        temperature = temp;
         postInvalidate();
     }
     public void setPrecentTemp(int minT,int maxT,int p2T,int p02T,int p1T,int p01T){ //设置最大最小左2左1右2右1温度
-        this.minTemp = minT;
-        this.maxTemp = maxT;
-        this.precent2Temp = p2T;
-        this.precent02Temp = p02T;
-        this.precent1Temp = p1T;
-        this.precent01Temp = p01T;
+        minTemp = minT;
+        maxTemp = maxT;
+        precent2Temp = p2T;
+        precent02Temp = p02T;
+        precent1Temp = p1T;
+        precent01Temp = p01T;
         string030 = minTemp+stringDegree;
         string30 = maxTemp+stringDegree;
         string20 = precent2Temp+stringDegree;
