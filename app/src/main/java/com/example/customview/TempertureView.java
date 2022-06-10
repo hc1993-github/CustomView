@@ -250,12 +250,12 @@ public class TempertureView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         width = Math.min(h, w);
         arcRadius = width / 2 - dp2px(40);
-        rect = new RectF(-arcRadius, -arcRadius, arcRadius, arcRadius);
-        linearGradient = new LinearGradient(mWidthHalf, mHeightHalf - arcRadius + 0.238f * imgWidth, mWidthHalf, mHeightHalf + arcRadius - 0.238f * imgWidth, paintColors.get(6), paintColors.get(7), Shader.TileMode.MIRROR);
         mWidth = getWidth();
         mHeight = getHeight();
         mWidthHalf = mWidth / 2;
         mHeightHalf = mHeight / 2;
+        rect = new RectF(-arcRadius, -arcRadius, arcRadius, arcRadius);
+        linearGradient = new LinearGradient(mWidthHalf, mHeightHalf - arcRadius + 0.238f * imgWidth, mWidthHalf, mHeightHalf + arcRadius - 0.238f * imgWidth, paintColors.get(6), paintColors.get(7), Shader.TileMode.MIRROR);
     }
 
     @Override
