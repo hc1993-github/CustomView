@@ -305,7 +305,7 @@ public class TempertureView extends View {
                 temperature = minTemp;
             }
             int abs = Math.abs(temperature);
-            paintOthers.setColor(tempColors.get((int) ((maxTemp - abs) * (30f / maxTemp))));
+            paintOthers.setColor(tempColors.get((int) (30f*(maxTemp - abs)/ maxTemp)));
             if (temperature <= precent02Temp) {
                 stringCurrentState = stringY;
             } else if (temperature <= precent01Temp) {
@@ -327,7 +327,7 @@ public class TempertureView extends View {
             } else {
                 stringCurrentState = stringZD;
             }
-            paintOthers.setColor(tempColors.get(60 - (int) ((maxTemp - temperature) * (30f / maxTemp))));
+            paintOthers.setColor(tempColors.get(60 - (int) (30f*(maxTemp - temperature)/ maxTemp)));
         }
         canvas.drawRect(mWidthHalf - 0.458f * imgWidth + rLengKu.width(), mHeightHalf + 0.7f * arcRadius + 0.125f * imgWidth - 0.667f * rLengKu.height(), mWidthHalf - 0.29f * imgWidth + rLengKu.width(), mHeightHalf + 0.7f * arcRadius + 0.125f * imgWidth + 0.333f * rLengKu.height(), paintOthers);
         paintOthers.setColor(paintColors.get(5));
@@ -345,14 +345,14 @@ public class TempertureView extends View {
                 temperature = minTemp;
             }
             int abs = Math.abs(temperature);
-            paintTemp.setColor(tempColors.get((int) ((maxTemp - abs) * (30f / maxTemp))));
+            paintTemp.setColor(tempColors.get((int) (30f*(maxTemp - abs) / maxTemp)));
         } else if (temperature == middleTemp) {
             paintTemp.setColor(tempColors.get(30));
         } else {
             if (temperature > maxTemp) {
                 temperature = maxTemp;
             }
-            paintTemp.setColor(tempColors.get(60 - (int) ((maxTemp - temperature) * (30f / maxTemp))));
+            paintTemp.setColor(tempColors.get(60 - (int) (30f*(maxTemp - temperature) / maxTemp)));
         }
         canvas.drawText(temperature + stringDegree, -0.5f * tempWidth - dp2px(5), -tempHeight, paintTemp);
         canvas.rotate(rotateAngle);
@@ -365,7 +365,7 @@ public class TempertureView extends View {
             if (currentTemp < minTemp) {
                 rotateAngle = middleTemp;
             } else {
-                rotateAngle = (currentTemp - minTemp) * (135f / maxTemp);
+                rotateAngle = 135f*(currentTemp - minTemp) / maxTemp;
             }
         } else if (currentTemp == middleTemp) {
             rotateAngle = 135;
@@ -373,7 +373,7 @@ public class TempertureView extends View {
             if (currentTemp > maxTemp) {
                 rotateAngle = 270;
             } else {
-                rotateAngle = 270 - (maxTemp - currentTemp) * (135f / maxTemp);
+                rotateAngle = 270 - 135f*(maxTemp - currentTemp) / maxTemp;
             }
         }
     }
