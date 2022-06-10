@@ -250,6 +250,8 @@ public class TempertureView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         width = Math.min(h, w);
         arcRadius = width / 2 - dp2px(40);
+        rect = new RectF(-arcRadius, -arcRadius, arcRadius, arcRadius);
+        linearGradient = new LinearGradient(mWidthHalf, mHeightHalf - arcRadius + 0.238f * imgWidth, mWidthHalf, mHeightHalf + arcRadius - 0.238f * imgWidth, paintColors.get(6), paintColors.get(7), Shader.TileMode.MIRROR);
         mWidth = getWidth();
         mHeight = getHeight();
         mWidthHalf = mWidth / 2;
@@ -398,10 +400,7 @@ public class TempertureView extends View {
     private void drawCircle(Canvas canvas) { //画中间阴影圆
         canvas.save();
         canvas.translate(mWidthHalf, mHeightHalf);
-        if (linearGradient == null) {
-            linearGradient = new LinearGradient(mWidthHalf, mHeightHalf - arcRadius + 0.238f * imgWidth, mWidthHalf, mHeightHalf + arcRadius - 0.238f * imgWidth, paintColors.get(6), paintColors.get(7), Shader.TileMode.MIRROR);
-            paintCircle.setShader(linearGradient);
-        }
+        paintCircle.setShader(linearGradient);
         canvas.drawCircle(0, 0, arcRadius - 0.262f * imgWidth, paintCircle);
         canvas.restore();
     }
@@ -443,9 +442,6 @@ public class TempertureView extends View {
         canvas.save();
         canvas.translate(mWidthHalf, mHeightHalf);
         canvas.rotate(135f);
-        if (rect == null) {
-            rect = new RectF(-arcRadius, -arcRadius, arcRadius, arcRadius);
-        }
         canvas.drawArc(rect, 0, 270f, false, paintArc);
         canvas.restore();
     }
