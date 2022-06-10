@@ -467,12 +467,12 @@ public class TempertureView extends View {
         if (temps.length < 3) {
             throw new IllegalArgumentException("请设置3个温度刻度");
         }
-        minTemp = -temps[0];
         maxTemp = temps[0];
+        minTemp = -maxTemp;
         precent2Temp = temps[1];
-        precent02Temp = -temps[1];
+        precent02Temp = -precent2Temp;
         precent1Temp = temps[2];
-        precent01Temp = -temps[2];
+        precent01Temp = -precent1Temp;
         string030 = minTemp + stringDegree;
         string30 = maxTemp + stringDegree;
         string20 = precent2Temp + stringDegree;
