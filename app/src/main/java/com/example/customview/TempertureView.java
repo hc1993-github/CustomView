@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TempertureView extends View {
-    int width;
-    int arcRadius;
     Paint paint;
     Paint paintScale;
     Paint paintArc;
@@ -41,6 +39,8 @@ public class TempertureView extends View {
     Rect rYou;
     Rect rLengKu;
     float rotateAngle;
+    int width;
+    int arcRadius;
     int temperature = 0;
     int minTemp = -30;
     int maxTemp = 30;
@@ -49,6 +49,12 @@ public class TempertureView extends View {
     int precent02Temp = -20;
     int precent1Temp = 10;
     int precent01Temp = -10;
+    int imgWidth;
+    int imgHeight;
+    int mWidth;
+    int mHeight;
+    int mWidthHalf;
+    int mHeightHalf;
     Bitmap centerImg;
     List<Integer> tempColors;
     List<Integer> paintColors;
@@ -66,15 +72,10 @@ public class TempertureView extends View {
     String stringGR = "过热";
     String stringWX = "危险";
     String stringLKWDZK = "冷库温度状况:";
-    String empty = "";
+    String stringEmpty = "";
+    String stringCurrentState;
     LinearGradient linearGradient;
     Matrix matrix;
-    int imgWidth;
-    int imgHeight;
-    int mWidth;
-    int mHeight;
-    int mWidthHalf;
-    int mHeightHalf;
 
     public TempertureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -297,7 +298,6 @@ public class TempertureView extends View {
     private void drawOthers(Canvas canvas) { //画中间温度状况
         canvas.save();
         canvas.drawText(stringLKWDZK, mWidthHalf - 0.5f * imgWidth, mHeightHalf + 0.7f * arcRadius + 0.146f * imgWidth, paintOthers);
-        String str = null;
         if (temperature < middleTemp) {
             if (temperature < minTemp) {
                 temperature = minTemp;
@@ -305,38 +305,38 @@ public class TempertureView extends View {
             int abs = Math.abs(temperature);
             paintOthers.setColor(tempColors.get((int) ((maxTemp - abs) * (30f / maxTemp))));
             if (temperature <= precent02Temp) {
-                str = stringY;
+                stringCurrentState = stringY;
             } else if (temperature <= precent01Temp) {
-                str = stringL;
+                stringCurrentState = stringL;
             } else {
-                str = stringZD;
+                stringCurrentState = stringZD;
             }
         } else if (temperature == middleTemp) {
             paintOthers.setColor(tempColors.get(30));
-            str = stringZD;
+            stringCurrentState = stringZD;
         } else {
             if (temperature > maxTemp) {
                 temperature = maxTemp;
             }
             if (temperature >= precent2Temp) {
-                str = stringWX;
+                stringCurrentState = stringWX;
             } else if (temperature >= precent1Temp) {
-                str = stringGR;
+                stringCurrentState = stringGR;
             } else {
-                str = stringZD;
+                stringCurrentState = stringZD;
             }
             paintOthers.setColor(tempColors.get(60 - (int) ((maxTemp - temperature) * (30f / maxTemp))));
         }
         canvas.drawRect(mWidthHalf - 0.458f * imgWidth + rLengKu.width(), mHeightHalf + 0.7f * arcRadius + 0.125f * imgWidth - 0.667f * rLengKu.height(), mWidthHalf - 0.29f * imgWidth + rLengKu.width(), mHeightHalf + 0.7f * arcRadius + 0.125f * imgWidth + 0.333f * rLengKu.height(), paintOthers);
         paintOthers.setColor(paintColors.get(5));
-        canvas.drawText(str, mWidthHalf - 0.25f * imgWidth + rLengKu.width(), mHeightHalf + 0.7f * arcRadius + 0.146f * imgWidth, paintOthers);
+        canvas.drawText(stringCurrentState, mWidthHalf - 0.25f * imgWidth + rLengKu.width(), mHeightHalf + 0.7f * arcRadius + 0.146f * imgWidth, paintOthers);
         canvas.restore();
     }
 
     private void drawTemp(Canvas canvas) { //画中间温度和小圆点
         canvas.save();
         canvas.translate(mWidthHalf, mHeightHalf);
-        float tempWidth = paintTemp.measureText(temperature + empty);
+        float tempWidth = paintTemp.measureText(temperature + stringEmpty);
         float tempHeight = 0.5f * (paintTemp.ascent() + paintTemp.descent());
         if (temperature < middleTemp) {
             if (temperature < minTemp) {
