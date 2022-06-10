@@ -464,7 +464,7 @@ public class TempertureView extends View {
     }
 
     public void setPrecentTemp(int[] temps) { //设置最大最小左2左1右2右1温度
-        if(temps.length<6){
+        if (temps.length < 6) {
             throw new IllegalArgumentException("请设置6个温度刻度");
         }
         minTemp = temps[0];
