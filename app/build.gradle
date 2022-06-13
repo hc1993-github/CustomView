@@ -7,8 +7,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.customview"
-        minSdk 26
-        targetSdk 32
+        minSdk 23
+        targetSdk 23
         versionCode 1
         versionName "1.0"
 
@@ -35,4 +35,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.8.0'
+    implementation 'com.alibaba:fastjson:1.1.54.android'
 }

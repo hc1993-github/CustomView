@@ -1,4 +1,4 @@
-package com.example.customview;
+package com.example.customview.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,6 +16,8 @@ import android.util.TypedValue;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+
+import com.example.customview.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -407,6 +409,11 @@ public class TempertureView extends View {
 
     private void drawText(Canvas canvas) { //画温度刻度
         canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(45f);
+//        canvas.translate(arcRadius+r30.width(),0.5f*r10.height());
+//        canvas.rotate(-45f);
+//        canvas.drawText(string30,0,0,paint);
         canvas.drawText(string030, mWidthHalf - 0.7f * arcRadius - 0.19f * imgWidth, mHeightHalf + 0.7f * arcRadius + 0.167f * imgWidth, paint);
         canvas.drawText(stringY, mWidthHalf - 0.924f * arcRadius - 0.143f * imgWidth, mHeightHalf + 0.383f * arcRadius + 0.083f * imgWidth, paintText);
         canvas.drawText(string020, mWidthHalf - 1.0f * arcRadius - 0.083f * imgWidth - r30.width(), mHeightHalf + 0.5f * r30.height(), paint);
@@ -421,14 +428,62 @@ public class TempertureView extends View {
         canvas.drawText(stringWX, mWidthHalf + 0.924f * arcRadius + 0.5f * rNormal.width(), mHeightHalf + 0.383f * arcRadius + 0.083f * imgWidth, paintText);
         canvas.drawText(string30, mWidthHalf + 0.7f * arcRadius + 0.5f * r10.width(), mHeightHalf + 0.7f * arcRadius + 0.167f * imgWidth, paint);
         canvas.restore();
+
+//        canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(0f);
+//        canvas.translate(arcRadius+dp2px(10),0.5f*r10.height());
+//        canvas.rotate(-0f);
+//        canvas.drawText(string20,0,0,paint);
+//        canvas.restore();
+//
+//        canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(-45f);
+//        canvas.translate(arcRadius+dp2px(10),0.5f*r10.height());
+//        canvas.rotate(45f);
+//        canvas.drawText(string10,0,0,paint);
+//        canvas.restore();
+//
+//        canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(-90f);
+//        canvas.translate(arcRadius+dp2px(10),-0.5f*r0.height());
+//        canvas.rotate(90f);
+//        canvas.drawText(string0,0,0,paint);
+//        canvas.restore();
+//
+//        canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(-135f);
+//        canvas.translate(arcRadius+r30.width()+dp2px(10),-0.5f*r10.height());
+//        canvas.rotate(135f);
+//        canvas.drawText(string010,0,0,paint);
+//        canvas.restore();
+//
+//        canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(-180f);
+//        canvas.translate(arcRadius+r30.width()+dp2px(10),-0.5f*r30.height());
+//        canvas.rotate(180f);
+//        canvas.drawText(string020,0,0,paint);
+//        canvas.restore();
+//
+//        canvas.save();
+//        canvas.translate(mWidthHalf,mHeightHalf);
+//        canvas.rotate(-225f);
+//        canvas.translate(arcRadius+r30.width()+dp2px(10),0.5f*r10.height());
+//        canvas.rotate(225f);
+//        canvas.drawText(string030,0,0,paint);
+//        canvas.restore();
     }
 
     private void drawScale(Canvas canvas) { //画刻度
         canvas.save();
         canvas.translate(mWidthHalf, mHeightHalf);
         canvas.rotate(-120f);
-        for (int i = 0; i < 17; i++) {
-            if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14) {
+        for (int i = 1; i < 18; i++) {
+            if (i % 3 == 0) {
                 canvas.drawLine(0, -arcRadius, 0, -arcRadius - dp2px(10), paintScale);
             } else {
                 canvas.drawLine(0, -arcRadius, 0, -arcRadius - dp2px(5), paintScale);
