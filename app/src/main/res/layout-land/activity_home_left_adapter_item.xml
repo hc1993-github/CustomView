@@ -5,10 +5,11 @@
     <ImageView
         android:id="@+id/left_item_img"
         android:clickable="true"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:scaleType="fitCenter"
         android:src="@drawable/img_white_printer"
+        android:layout_marginStart="5dp"
         android:layout_alignTop="@id/left_item_taskName"
         android:layout_alignBottom="@id/left_item_taskName"/>
     <TextView

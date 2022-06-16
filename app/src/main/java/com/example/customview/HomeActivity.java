@@ -1,22 +1,30 @@
 package com.example.customview;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,7 +33,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.customview.adapter.HomeLeftAdapter;
 import com.example.customview.bean.Bean;
+import com.example.customview.bean.DeviceBean;
 import com.example.customview.bean.DeviceTask;
+import com.example.customview.util.BluetoothUtils;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
 
@@ -39,7 +49,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements BluetoothUtils.BluetoothInterface {
     ImageView img_home_task_list;
     TextView tv_home_task_list_deviceName;
     ImageView img_direction;
@@ -63,6 +73,7 @@ public class HomeActivity extends AppCompatActivity {
     DatePickerDialog dialog_dateTime;
     CustomDialog dialog_deviceNames;
     CustomDialog dialog_stateNames;
+    CustomDialog exitdialog;
     List<Bean> deviceNames;
     List<Bean> stateNames;
     String department_id;
@@ -79,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
     ImageView img_pm_tasks;
     boolean am_task_selected;
     boolean pm_task_selected;
+    boolean all_tempertures_selected;
     TextView tv_drawlayout_left_loginName;
     TextView tvdrawlayout_left_loginDept;
     ProgressBar progress_refresh;
@@ -109,6 +121,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        checkPermission();
         initViews();
         initOthers();
         initEvents();
@@ -229,6 +242,33 @@ public class HomeActivity extends AppCompatActivity {
                 createOrUpdateCurrentDayTaskTime();
             }
         });
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                switch (id){
+                    case R.id.blueTeethPrint:
+                        checkPermission();
+                        break;
+                    case R.id.exit:
+                        exitdialog.show();
+                        break;
+                }
+                return false;
+            }
+        });
+        img_allPrintSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!all_tempertures_selected){
+                    all_tempertures_selected = true;
+                    img_allPrintSelect.setImageResource(R.drawable.img_green_printer);
+                }else {
+                    all_tempertures_selected = false;
+                    img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+                }
+            }
+        });
     }
 
     private void initOthers() {
@@ -242,6 +282,8 @@ public class HomeActivity extends AppCompatActivity {
                 mDayOfMonth = dayOfMonth;
                 tv_dataTime.setText(year+"-"+(month+1)+"-"+dayOfMonth);
                 progress_refresh.setVisibility(View.VISIBLE);
+                img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+                all_tempertures_selected = false;
                 requestDeviceTasks();
             }
         },calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1,calendar.get(Calendar.DAY_OF_MONTH));
@@ -265,6 +307,8 @@ public class HomeActivity extends AppCompatActivity {
                 setStatus(status);
                 dialog_deviceNames.dismiss();
                 progress_refresh.setVisibility(View.VISIBLE);
+                img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+                all_tempertures_selected = false;
                 requestDeviceTasks();
             }
         });
@@ -287,6 +331,24 @@ public class HomeActivity extends AppCompatActivity {
                 dialog_stateNames.dismiss();
             }
         });
+        exitdialog = new CustomDialog.Builder()
+                .setLayout(R.layout.activity_home_exit_dialog)
+                .setContext(this)
+                .setLeftBtnId(R.id.exit_cancel)
+                .setRightBtnId(R.id.exit_confirm)
+                .setListener(new CustomDialog.OnClickListener() {
+                    @Override
+                    public void onLeftClick(Dialog dialog) {
+                        exitdialog.dismiss();
+                    }
+
+                    @Override
+                    public void onRightClick(Dialog dialog) {
+                        exitdialog.dismiss();
+                        finish();
+                    }
+                })
+                .build();
     }
 
     private void initViews() {
@@ -595,6 +657,8 @@ public class HomeActivity extends AppCompatActivity {
         }
         drawer_layout.closeDrawer(Gravity.LEFT);
         progress_refresh.setVisibility(View.VISIBLE);
+        img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+        all_tempertures_selected = false;
         handler.sendEmptyMessageDelayed(3,1000);
     }
 
@@ -606,5 +670,38 @@ public class HomeActivity extends AppCompatActivity {
         tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
         dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
         tv_taskState.setText("运输中");
+    }
+
+    @Override
+    public void getBluetoothList(ArrayList<DeviceBean> deviceBeans) {
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    BluetoothUtils.getInstance().initBluetooth(this);
+                    BluetoothUtils.getInstance().setBluetoothListener(this);
+                    BluetoothUtils.getInstance().enable();
+                    BluetoothUtils.getInstance().startDiscovery();
+                } else {
+                    Toast.makeText(this,"拒绝了蓝牙权限,无法使用蓝牙打印",Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
+
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
+            } else {
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
+            }
+        }
     }
 }

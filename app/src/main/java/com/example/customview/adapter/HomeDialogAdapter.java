@@ -1,7 +1,6 @@
 package com.example.customview.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,7 @@ public class HomeDialogAdapter extends RecyclerView.Adapter<HomeDialogAdapter.ac
     @NonNull
     @Override
     public activitiy_home_dialog_adapter_holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.activitiy_home_dialog_adapter_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.activity_home_dialog_adapter_item, parent, false);
         return new activitiy_home_dialog_adapter_holder(view);
     }
 
