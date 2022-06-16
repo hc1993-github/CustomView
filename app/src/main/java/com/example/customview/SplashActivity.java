@@ -4,10 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Base64;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -28,11 +33,28 @@ import okhttp3.Response;
 
 public class SplashActivity extends AppCompatActivity {
     public static final String secretKey = "8t13YLhm";
+    String string;
+    Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what){
+                case 1:
+                    AnalyseVersion(string);
+                    break;
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         getVersion();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 
     private void getVersion() {
@@ -49,8 +71,10 @@ public class SplashActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    String string = response.body().string();
-                    AnalyseVersion(string);
+                    string = response.body().string();
+                    Message message = new Message();
+                    message.what = 1;
+                    handler.sendEmptyMessageDelayed(1,1000);
                 }
             });
         } catch (Exception e) {
@@ -60,18 +84,19 @@ public class SplashActivity extends AppCompatActivity {
 
     private void AnalyseVersion(String message) {
         if(message.contains("无更新包")){
-//            SharedPreferences preferences = getSharedPreferences("loginInfo",MODE_PRIVATE);
-//            String ip = preferences.getString("ip", "");
-//            String port = preferences.getString("port", "");
-//            String name = preferences.getString("name", "");
-//            String password = preferences.getString("password", "");
-//            if(!"".equals(ip) && !"".equals(port) && !"".equals(name) && !"".equals(password)){
-//                doLogin(name,password);
-//            }else {
-//                startActivity(new Intent(this,MainActivity.class));
-//                finish();
-//            }
-            doLogin("4600000000","Dev123123");
+            Toast.makeText(SplashActivity.this,"已是最新版本",Toast.LENGTH_SHORT).show();
+            SharedPreferences preferences = getSharedPreferences("loginInfo",MODE_PRIVATE);
+            String ip = preferences.getString("ip", "");
+            String port = preferences.getString("port", "");
+            String name = preferences.getString("name", "");
+            String password = preferences.getString("password", "");
+            if(!"".equals(ip) && !"".equals(port) && !"".equals(name) && !"".equals(password)){
+                doLogin(name,password);
+            }else {
+                startActivity(new Intent(this,LoginActivity.class));
+                finish();
+            }
+            //doLogin("4600000000","Dev123123");
         }else {
             String result = AnalyseDES(message,secretKey);
             JSONObject jsonObject = JSONArray.parseObject(result);

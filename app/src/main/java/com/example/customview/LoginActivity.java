@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what){
                 case 0:
-                    doLogin(ed_name.getText().toString(),MD5Util.md5(ed_password.getText().toString()));
+                    doLogin(ed_name.getText().toString(),ed_password.getText().toString());
                     break;
                 case 1:
                     Toast.makeText(LoginActivity.this,msg.obj.toString(),Toast.LENGTH_SHORT).show();
@@ -56,6 +56,12 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
         initDatas();
         initEvents();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 
     private void initViews() {
@@ -73,10 +79,18 @@ public class LoginActivity extends AppCompatActivity {
         String port = preferences.getString("port", "");
         String name = preferences.getString("name", "");
         String password = preferences.getString("password", "");
-        ed_ip.setText(ip);
-        ed_port.setText(port);
-        ed_name.setText(name);
-        ed_password.setText(password);
+        if(!ip.equals("")){
+            ed_ip.setText(ip);
+        }
+        if(!port.equals("")){
+            ed_port.setText(port);
+        }
+        if(!name.equals("")){
+            ed_name.setText(name);
+        }
+        if(!password.equals("")){
+            ed_password.setText(password);
+        }
     }
 
     private void initEvents() {
