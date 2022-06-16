@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -35,6 +33,7 @@ import com.example.customview.adapter.HomeLeftAdapter;
 import com.example.customview.bean.Bean;
 import com.example.customview.bean.DeviceBean;
 import com.example.customview.bean.DeviceTask;
+import com.example.customview.bean.LoginResultBean;
 import com.example.customview.util.BluetoothUtils;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
@@ -136,11 +135,10 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
 
     private void initDatas() {
         Intent intent = getIntent();
-        department_id = intent.getStringExtra("department_id");
-        String department_name = intent.getStringExtra("department_name");
-        String department_fullName = intent.getStringExtra("department_fullName");
-        tv_drawlayout_left_loginName.setText("登录用户:"+department_name);
-        tvdrawlayout_left_loginDept.setText("登录部门:"+department_fullName);
+        LoginResultBean bean = (LoginResultBean) intent.getSerializableExtra("loginResultBean");
+        department_id = bean.getId();
+        tv_drawlayout_left_loginName.setText("登录用户:"+bean.getName());
+        tvdrawlayout_left_loginDept.setText("登录部门:"+bean.getFullName());
         requestDeviceInfos();
         requestDeviceTasks();
     }
@@ -670,6 +668,19 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
         dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
         tv_taskState.setText("运输中");
+        Request request = new Request.Builder().url("http://221.224.159.210:38111/coldchain/public/deviceTransit!transit.action?id="+currentDeviceId).build();
+        OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                requestDeviceTasks();
+            }
+        });
+
     }
 
     @Override

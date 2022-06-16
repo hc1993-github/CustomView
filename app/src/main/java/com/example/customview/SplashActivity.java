@@ -1,8 +1,5 @@
 package com.example.customview;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -14,8 +11,12 @@ import android.os.Message;
 import android.util.Base64;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.example.customview.bean.LoginResultBean;
 import com.example.customview.util.MD5Util;
 import com.example.customview.util.OkhttpUtil;
 
@@ -100,10 +101,7 @@ public class SplashActivity extends AppCompatActivity {
         }else {
             String result = AnalyseDES(message,secretKey);
             JSONObject jsonObject = JSONArray.parseObject(result);
-            String downLoadPath = jsonObject.getString("path");
-            String md5 = jsonObject.getString("md5");
-            String unZipPwd = jsonObject.getString("compressPwd");
-            downLoadZipAndInstall(downLoadPath,md5,unZipPwd);
+            downLoadZipAndInstall(jsonObject.getString("path"),jsonObject.getString("md5"),jsonObject.getString("compressPwd"));
         }
     }
 
@@ -129,15 +127,9 @@ public class SplashActivity extends AppCompatActivity {
     private void AnalyseLogin(String message) {
         if(message.contains("登陆成功")){
             JSONObject jsonObject = JSONArray.parseObject(message);
-            JSONObject account = jsonObject.getJSONObject("account");
-            JSONObject department = jsonObject.getJSONObject("department");
-            String department_id = department.getString("id");
-            String department_name = department.getString("name");
-            String department_fullName = department.getString("fullName");
+            LoginResultBean bean = new LoginResultBean(jsonObject);
             Intent intent = new Intent(this, HomeActivity.class);
-            intent.putExtra("department_id",department_id);
-            intent.putExtra("department_name",department_name);
-            intent.putExtra("department_fullName",department_fullName);
+            intent.putExtra("loginResultBean",bean);
             startActivity(intent);
             finish();
         }else {
