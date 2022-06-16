@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/blueTeethPrint" android:title="蓝牙打印"/>
+    <item android:id="@+id/printOneMachine" android:title="打印一体机"/>
+    <item android:id="@+id/exit" android:title="退出"/>
+</menu>
