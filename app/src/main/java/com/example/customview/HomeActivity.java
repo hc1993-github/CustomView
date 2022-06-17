@@ -654,7 +654,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         }
     }
 
-    private void selectedAllTempturesOrNot(){
+    private void selectedAllTemptures(){
         if(!all_tempertures_selected){
             all_tempertures_selected = true;
             img_allPrintSelect.setImageResource(R.drawable.img_green_printer);
@@ -699,7 +699,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 createOrUpdateCurrentDayTaskTime();
                 break;
             case R.id.img_allPrintSelect:
-                selectedAllTempturesOrNot();
+                selectedAllTemptures();
                 break;
         }
     }
