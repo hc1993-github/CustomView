@@ -120,6 +120,8 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        BluetoothUtils.getInstance().initBluetooth(this);
+        BluetoothUtils.getInstance().setBluetoothListener(this);
         checkPermission();
         initViews();
         initOthers();
@@ -694,9 +696,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         switch (requestCode) {
             case 1: {
                 if (grantResults.length > 0&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    BluetoothUtils.getInstance().initBluetooth(this);
-                    BluetoothUtils.getInstance().setBluetoothListener(this);
-                    BluetoothUtils.getInstance().enable();
+                    if(!BluetoothUtils.getInstance().isEnabled()){
+                        BluetoothUtils.getInstance().enable();
+                    }
                     BluetoothUtils.getInstance().startDiscovery();
                 } else {
                     Toast.makeText(this,"拒绝了蓝牙权限,无法使用蓝牙打印",Toast.LENGTH_SHORT).show();
@@ -713,6 +715,11 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
             } else {
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
             }
+        }else {
+            if(!BluetoothUtils.getInstance().isEnabled()){
+                BluetoothUtils.getInstance().enable();
+            }
+            BluetoothUtils.getInstance().startDiscovery();
         }
     }
 }

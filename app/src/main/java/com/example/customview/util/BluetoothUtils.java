@@ -63,8 +63,10 @@ public class BluetoothUtils {
             }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent.getAction())){
                 // 搜索完成
                 dev_mac_adress = "";
-                bluetoothInterface.getBluetoothList(deviceBeans);
-                deviceBeans.clear();
+                if(deviceBeans.size()>0){
+                    bluetoothInterface.getBluetoothList(deviceBeans);
+                    deviceBeans.clear();
+                }
             }
         }
     };
