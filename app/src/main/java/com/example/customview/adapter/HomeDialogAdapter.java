@@ -16,10 +16,10 @@ import com.example.customview.bean.Bean;
 import java.util.List;
 
 public class HomeDialogAdapter extends RecyclerView.Adapter<HomeDialogAdapter.activitiy_home_dialog_adapter_holder>{
-    List<Bean> datas;
+    List<? extends Bean> datas;
     Context context;
     OnItemClick onItemClick;
-    public HomeDialogAdapter(List<Bean> datas, Context context) {
+    public HomeDialogAdapter(List<? extends Bean> datas, Context context) {
         this.datas = datas;
         this.context = context;
     }

@@ -73,8 +73,10 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     CustomDialog dialog_deviceNames;
     CustomDialog dialog_stateNames;
     CustomDialog exitdialog;
+    CustomDialog blueteethdialog;
     List<Bean> deviceNames;
     List<Bean> stateNames;
+    List<Bean> blueteethNames;
     String department_id;
     String currentDeviceId;
     List<DeviceTask> tasks_am;
@@ -122,7 +124,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         setContentView(R.layout.activity_home);
         BluetoothUtils.getInstance().initBluetooth(this);
         BluetoothUtils.getInstance().setBluetoothListener(this);
-        checkPermission();
         initViews();
         initOthers();
         initEvents();
@@ -298,6 +299,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 .setDatas(deviceNames)
                 .setRecyclerViewId(R.id.recyclerView_deviceNames)
                 .setContext(this)
+                .setType(1)
                 .build();
         dialog_deviceNames.setDialogOnItemClick(new CustomDialog.DialogOnItemClick() {
             @Override
@@ -322,6 +324,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 .setDatas(stateNames)
                 .setRecyclerViewId(R.id.recyclerView_currentStates)
                 .setContext(this)
+                .setType(1)
                 .build();
         dialog_stateNames.setDialogOnItemClick(new CustomDialog.DialogOnItemClick() {
             @Override
@@ -329,6 +332,21 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 updateDeviceStatus(status);
                 tv_currentState.setText(id);
                 dialog_stateNames.dismiss();
+            }
+        });
+        blueteethNames = new ArrayList<>();
+        blueteethdialog = new CustomDialog.Builder()
+                .setLayout(R.layout.activity_home_blueteeth_dialog)
+                .setDatas(blueteethNames)
+                .setRecyclerViewId(R.id.recyclerView_blueteeths)
+                .setContext(this)
+                .setType(2)
+                .build();
+        blueteethdialog.setDialogOnItemClick(new CustomDialog.DialogOnItemClick() {
+            @Override
+            public void itemClick(String id, String name, int status) {
+                blueteethdialog.dismiss();
+                Toast.makeText(HomeActivity.this,id+name,Toast.LENGTH_SHORT).show();
             }
         });
         exitdialog = new CustomDialog.Builder()
@@ -687,7 +705,17 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
 
     @Override
     public void getBluetoothList(ArrayList<DeviceBean> deviceBeans) {
-
+        blueteethNames.clear();
+        for(int i=0;i<deviceBeans.size();i++){
+            blueteethNames.add(new Bean(deviceBeans.get(i).getName(),deviceBeans.get(i).getAddress(),1));
+        }
+        TextView textView = blueteethdialog.findViewById(R.id.tv_blueteeth);
+        blueteethdialog.setData(blueteethNames);
+        if(blueteethNames.size()>0){
+            textView.setText("已搜索到的蓝牙");
+        }else {
+            textView.setText("未搜索到蓝牙");
+        }
     }
 
     @Override
@@ -699,6 +727,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                     if(!BluetoothUtils.getInstance().isEnabled()){
                         BluetoothUtils.getInstance().enable();
                     }
+                    blueteethdialog.show();
                     BluetoothUtils.getInstance().startDiscovery();
                 } else {
                     Toast.makeText(this,"拒绝了蓝牙权限,无法使用蓝牙打印",Toast.LENGTH_SHORT).show();
@@ -719,6 +748,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
             if(!BluetoothUtils.getInstance().isEnabled()){
                 BluetoothUtils.getInstance().enable();
             }
+            blueteethdialog.show();
             BluetoothUtils.getInstance().startDiscovery();
         }
     }

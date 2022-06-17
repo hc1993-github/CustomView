@@ -12,8 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.customview.HomeActivity;
+import com.example.customview.adapter.HomeBlueTeethAdapter;
 import com.example.customview.adapter.HomeDialogAdapter;
 import com.example.customview.bean.Bean;
+import com.example.customview.bean.DeviceBean;
 
 import java.util.List;
 
@@ -22,9 +24,11 @@ public class CustomDialog extends Dialog {
     private Button leftBtn;
     private Button rightBtn;
     private RecyclerView recyclerView;
-    List<Bean> datas;
+    List<? extends Bean> datas;
     HomeDialogAdapter adapter;
+    HomeBlueTeethAdapter blueTeethAdapter;
     DialogOnItemClick dialogOnItemClick;
+    int type;
     private CustomDialog(Builder builder) {
         super(builder.context);
         this.builder = builder;
@@ -49,6 +53,7 @@ public class CustomDialog extends Dialog {
         setContentView(builder.layout);
         setCancelable(false);
         this.datas = builder.datas;
+        this.type = builder.type;
         initViews();
     }
 
@@ -75,14 +80,25 @@ public class CustomDialog extends Dialog {
         recyclerView = findViewById(builder.recyclerViewId);
         if(recyclerView!=null){
             recyclerView.setLayoutManager(new LinearLayoutManager(builder.context,LinearLayoutManager.VERTICAL,false));
-            adapter = new HomeDialogAdapter(datas,builder.context);
-            adapter.setOnItemClick(new HomeDialogAdapter.OnItemClick() {
-                @Override
-                public void itemClick(String id, String name, int status) {
-                    dialogOnItemClick.itemClick(id,name,status);
-                }
-            });
-            recyclerView.setAdapter(adapter);
+            if(type==1){
+                adapter = new HomeDialogAdapter(datas,builder.context);
+                adapter.setOnItemClick(new HomeDialogAdapter.OnItemClick() {
+                    @Override
+                    public void itemClick(String id, String name, int status) {
+                        dialogOnItemClick.itemClick(id,name,status);
+                    }
+                });
+                recyclerView.setAdapter(adapter);
+            }else if(type==2){
+                blueTeethAdapter = new HomeBlueTeethAdapter(datas,builder.context);
+                blueTeethAdapter.setOnItemClick(new HomeBlueTeethAdapter.OnItemClick() {
+                    @Override
+                    public void itemClick(Bean bean) {
+                        dialogOnItemClick.itemClick(bean.getId(),bean.getName(),1);
+                    }
+                });
+                recyclerView.setAdapter(blueTeethAdapter);
+            }
             setCancelable(true);
         }
     }
@@ -96,7 +112,11 @@ public class CustomDialog extends Dialog {
 
     public void setData(List<Bean> datas){
         this.datas = datas;
-        adapter.notifyDataSetChanged();
+        if(type==1){
+            adapter.notifyDataSetChanged();
+        }else if(type==2){
+            blueTeethAdapter.notifyDataSetChanged();
+        }
     }
     public static class Builder {
         public Context context;
@@ -107,6 +127,7 @@ public class CustomDialog extends Dialog {
         private OnClickListener listener;
         private int recyclerViewId;
         public List<Bean> datas;
+        private int type;
         public Builder setRecyclerViewId(int recyclerViewId) {
             this.recyclerViewId = recyclerViewId;
             return this;
@@ -114,6 +135,11 @@ public class CustomDialog extends Dialog {
 
         public Builder setContext(Context context) {
             this.context = context;
+            return this;
+        }
+
+        public Builder setType(int type) {
+            this.type = type;
             return this;
         }
 
