@@ -3,18 +3,14 @@ package com.example.customview.view;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.customview.HomeActivity;
 import com.example.customview.adapter.HomeBlueTeethAdapter;
 import com.example.customview.adapter.HomeDialogAdapter;
-import com.example.customview.bean.Bean;
 import com.example.customview.bean.DeviceBean;
 
 import java.util.List;
@@ -24,7 +20,7 @@ public class CustomDialog extends Dialog {
     private Button leftBtn;
     private Button rightBtn;
     private RecyclerView recyclerView;
-    List<? extends Bean> datas;
+    List<? extends DeviceBean> datas;
     HomeDialogAdapter adapter;
     HomeBlueTeethAdapter blueTeethAdapter;
     DialogOnItemClick dialogOnItemClick;
@@ -85,7 +81,7 @@ public class CustomDialog extends Dialog {
                 adapter.setOnItemClick(new HomeDialogAdapter.OnItemClick() {
                     @Override
                     public void itemClick(String id, String name, int status) {
-                        dialogOnItemClick.itemClick(id,name,status);
+                        dialogOnItemClick.itemClick(CustomDialog.this,id,name,status);
                     }
                 });
                 recyclerView.setAdapter(adapter);
@@ -93,8 +89,8 @@ public class CustomDialog extends Dialog {
                 blueTeethAdapter = new HomeBlueTeethAdapter(datas,builder.context);
                 blueTeethAdapter.setOnItemClick(new HomeBlueTeethAdapter.OnItemClick() {
                     @Override
-                    public void itemClick(Bean bean) {
-                        dialogOnItemClick.itemClick(bean.getId(),bean.getName(),1);
+                    public void itemClick(DeviceBean bean) {
+                        dialogOnItemClick.itemClick(CustomDialog.this,bean.getId(),bean.getName(),1);
                     }
                 });
                 recyclerView.setAdapter(blueTeethAdapter);
@@ -103,14 +99,14 @@ public class CustomDialog extends Dialog {
         }
     }
     public interface DialogOnItemClick{
-        void itemClick(String id,String name,int status);
+        void itemClick(CustomDialog dialog,String id,String name,int status);
     }
 
     public void setDialogOnItemClick(DialogOnItemClick dialogOnItemClick) {
         this.dialogOnItemClick = dialogOnItemClick;
     }
 
-    public void setData(List<Bean> datas){
+    public void setData(List<DeviceBean> datas){
         this.datas = datas;
         if(type==1){
             adapter.notifyDataSetChanged();
@@ -126,7 +122,7 @@ public class CustomDialog extends Dialog {
         private int layout;
         private OnClickListener listener;
         private int recyclerViewId;
-        public List<Bean> datas;
+        public List<DeviceBean> datas;
         private int type;
         public Builder setRecyclerViewId(int recyclerViewId) {
             this.recyclerViewId = recyclerViewId;
@@ -143,7 +139,7 @@ public class CustomDialog extends Dialog {
             return this;
         }
 
-        public Builder setDatas(List<Bean> datas) {
+        public Builder setDatas(List<DeviceBean> datas) {
             this.datas = datas;
             return this;
         }

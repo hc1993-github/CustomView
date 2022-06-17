@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.example.customview.bean.DeviceBean;
+import com.example.customview.bean.BlueteethDeviceBean;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public class BluetoothUtils {
     private BluetoothInterface bluetoothInterface;
     private BluetoothUtils (){}
     private String dev_mac_adress = "";
-    ArrayList<DeviceBean> deviceBeans = new ArrayList<>();
+    ArrayList<BlueteethDeviceBean> deviceBeans = new ArrayList<>();
 
     public static BluetoothUtils getInstance() {
         if (bluetoothInstance == null) {
@@ -55,7 +55,7 @@ public class BluetoothUtils {
                 /* 搜索结果 */
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if( device.getName() != null && !dev_mac_adress.contains(device.getAddress())){
-                    deviceBeans.add(new DeviceBean(device.getName(),device.getAddress()));
+                    deviceBeans.add(new BlueteethDeviceBean(device.getName(),device.getAddress()));
                     dev_mac_adress += device.getAddress();
                 }
             }else if(BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(intent.getAction())){
@@ -122,7 +122,7 @@ public class BluetoothUtils {
     }
     public interface BluetoothInterface{
         /* 获取蓝牙列表 */
-        void getBluetoothList(ArrayList<DeviceBean> deviceBeans);
+        void getBluetoothList(ArrayList<BlueteethDeviceBean> deviceBeans);
 
     }
 }

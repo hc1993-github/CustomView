@@ -30,10 +30,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.customview.adapter.HomeLeftAdapter;
-import com.example.customview.bean.Bean;
+import com.example.customview.adapter.HomeTemptureAdapter;
 import com.example.customview.bean.DeviceBean;
+import com.example.customview.bean.BlueteethDeviceBean;
 import com.example.customview.bean.DeviceTask;
 import com.example.customview.bean.LoginResultBean;
+import com.example.customview.bean.TempertureBean;
 import com.example.customview.util.BluetoothUtils;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
@@ -48,7 +50,11 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class HomeActivity extends AppCompatActivity implements BluetoothUtils.BluetoothInterface {
+public class HomeActivity extends AppCompatActivity implements BluetoothUtils.BluetoothInterface,
+        View.OnClickListener,HomeLeftAdapter.LeftItemClick,
+        Toolbar.OnMenuItemClickListener,HomeTemptureAdapter.TempOnItemClick,
+        DatePickerDialog.OnDateSetListener,CustomDialog.DialogOnItemClick,
+        CustomDialog.OnClickListener{
     ImageView img_home_task_list;
     TextView tv_home_task_list_deviceName;
     ImageView img_direction;
@@ -63,6 +69,8 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     TextView liner_tv_ku_two;
     TextView liner_tv_ku_three;
     RecyclerView recyclerView;
+    List<TempertureBean> tempertureBeans;
+    HomeTemptureAdapter temptureAdapter;
     TextView tv_noData;
     Toolbar toolbar;
     DrawerLayout drawer_layout;
@@ -74,9 +82,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     CustomDialog dialog_stateNames;
     CustomDialog exitdialog;
     CustomDialog blueteethdialog;
-    List<Bean> deviceNames;
-    List<Bean> stateNames;
-    List<Bean> blueteethNames;
+    List<DeviceBean> deviceNames;
+    List<DeviceBean> stateNames;
+    List<DeviceBean> blueteethNames;
     String department_id;
     String currentDeviceId;
     List<DeviceTask> tasks_am;
@@ -95,6 +103,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     TextView tv_drawlayout_left_loginName;
     TextView tvdrawlayout_left_loginDept;
     ProgressBar progress_refresh;
+    Calendar calendar;
     Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -113,6 +122,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                     break;
                 case 3:
                     progress_refresh.setVisibility(View.GONE);
+                    requestTempturesByTaskId("");
                     break;
             }
         }
@@ -147,226 +157,48 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     }
 
     private void initEvents() {
-        tv_dataTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog_dateTime.show();
-            }
-        });
-        img_home_task_list.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawer_layout.openDrawer(Gravity.LEFT);
-            }
-        });
-        img_right.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                am_task_selected = false;
-                pm_task_selected = false;
-                caculteDate(true);
-                tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
-                dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
-                progress_refresh.setVisibility(View.VISIBLE);
-                requestDeviceTasks();
-            }
-        });
-        img_left.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                am_task_selected = false;
-                pm_task_selected = false;
-                caculteDate(false);
-                tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
-                dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
-                progress_refresh.setVisibility(View.VISIBLE);
-                requestDeviceTasks();
-            }
-        });
-        tv_home_task_list_deviceName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                am_task_selected = false;
-                pm_task_selected = false;
-                dialog_deviceNames.show();
-                dialog_deviceNames.setData(deviceNames);
-            }
-        });
-        tv_currentState.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog_stateNames.show();
-                dialog_stateNames.setData(stateNames);
-            }
-        });
-        adapter_am.setLeftItemClick(new HomeLeftAdapter.LeftItemClick() {
-            @Override
-            public void itemClick(int position, DeviceTask task) {
-                adapterItemSelected(task);
-            }
-        });
-        adapter_pm.setLeftItemClick(new HomeLeftAdapter.LeftItemClick() {
-            @Override
-            public void itemClick(int position, DeviceTask task) {
-                adapterItemSelected(task);
-            }
-        });
-        img_am_tasks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!am_task_selected){
-                    am_task_selected = true;
-                    img_am_tasks.setImageResource(R.drawable.img_green_printer);
-                }else {
-                    am_task_selected = false;
-                    img_am_tasks.setImageResource(R.drawable.img_white_printer);
-                }
-                adapter_am.setAllSelected();
-            }
-        });
-        img_pm_tasks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!pm_task_selected){
-                    pm_task_selected = true;
-                    img_pm_tasks.setImageResource(R.drawable.img_green_printer);
-                }else {
-                    pm_task_selected = false;
-                    img_pm_tasks.setImageResource(R.drawable.img_white_printer);
-                }
-                adapter_pm.setAllSelected();
-            }
-        });
-        tv_taskState.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createOrUpdateCurrentDayTaskTime();
-            }
-        });
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int id = item.getItemId();
-                switch (id){
-                    case R.id.blueTeethPrint:
-                        checkPermission();
-                        break;
-                    case R.id.exit:
-                        exitdialog.show();
-                        break;
-                }
-                return false;
-            }
-        });
-        img_allPrintSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!all_tempertures_selected){
-                    all_tempertures_selected = true;
-                    img_allPrintSelect.setImageResource(R.drawable.img_green_printer);
-                }else {
-                    all_tempertures_selected = false;
-                    img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
-                }
-            }
-        });
+        tv_dataTime.setOnClickListener(this);
+        img_home_task_list.setOnClickListener(this);
+        img_right.setOnClickListener(this);
+        img_left.setOnClickListener(this);
+        tv_home_task_list_deviceName.setOnClickListener(this);
+        tv_currentState.setOnClickListener(this);
+        adapter_am.setLeftItemClick(this);
+        adapter_pm.setLeftItemClick(this);
+        img_am_tasks.setOnClickListener(this);
+        img_pm_tasks.setOnClickListener(this);
+        tv_taskState.setOnClickListener(this);
+        toolbar.setOnMenuItemClickListener(this);
+        img_allPrintSelect.setOnClickListener(this);
     }
 
     private void initOthers() {
+        calendar = Calendar.getInstance();
         toolbar.inflateMenu(R.menu.home_more_menu);
-        Calendar calendar = Calendar.getInstance();
-        dialog_dateTime = new DatePickerDialog(HomeActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                mYear = year;
-                mMonth = month+1;
-                mDayOfMonth = dayOfMonth;
-                tv_dataTime.setText(year+"-"+(month+1)+"-"+dayOfMonth);
-                progress_refresh.setVisibility(View.VISIBLE);
-                img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
-                all_tempertures_selected = false;
-                requestDeviceTasks();
-            }
-        },calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1,calendar.get(Calendar.DAY_OF_MONTH));
+        dialog_dateTime = new DatePickerDialog(this, this,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1,calendar.get(Calendar.DAY_OF_MONTH));
         mYear = calendar.get(Calendar.YEAR);
         mMonth = calendar.get(Calendar.MONTH)+1;
         mDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
         tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
 
         deviceNames = new ArrayList<>();
-        dialog_deviceNames = new CustomDialog.Builder()
-                .setLayout(R.layout.activity_home_devicenames_dialog)
-                .setDatas(deviceNames)
-                .setRecyclerViewId(R.id.recyclerView_deviceNames)
-                .setContext(this)
-                .setType(1)
-                .build();
-        dialog_deviceNames.setDialogOnItemClick(new CustomDialog.DialogOnItemClick() {
-            @Override
-            public void itemClick(String id, String name, int status) {
-                currentDeviceId = id;
-                tv_home_task_list_deviceName.setText(name);
-                setStatus(status);
-                dialog_deviceNames.dismiss();
-                progress_refresh.setVisibility(View.VISIBLE);
-                img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
-                all_tempertures_selected = false;
-                requestDeviceTasks();
-            }
-        });
+        dialog_deviceNames = new CustomDialog.Builder().setLayout(R.layout.activity_home_devicenames_dialog).setDatas(deviceNames)
+                .setRecyclerViewId(R.id.recyclerView_deviceNames).setContext(this).setType(1).build();
+        dialog_deviceNames.setDialogOnItemClick(this);
         stateNames = new ArrayList<>();
-        stateNames.add(new Bean("正常","正常",0));
-        stateNames.add(new Bean("除霜","除霜-记录不报警",2));
-        stateNames.add(new Bean("盘苗","盘苗-记录不报警",6));
-        stateNames.add(new Bean("停用","停用-不记录不报警",3));
-        dialog_stateNames = new CustomDialog.Builder()
-                .setLayout(R.layout.activity_home_currentstates_dialog)
-                .setDatas(stateNames)
-                .setRecyclerViewId(R.id.recyclerView_currentStates)
-                .setContext(this)
-                .setType(1)
-                .build();
-        dialog_stateNames.setDialogOnItemClick(new CustomDialog.DialogOnItemClick() {
-            @Override
-            public void itemClick(String id, String name, int status) {
-                updateDeviceStatus(status);
-                tv_currentState.setText(id);
-                dialog_stateNames.dismiss();
-            }
-        });
+        stateNames.add(new DeviceBean("正常","正常",0));
+        stateNames.add(new DeviceBean("除霜","除霜-记录不报警",2));
+        stateNames.add(new DeviceBean("盘苗","盘苗-记录不报警",6));
+        stateNames.add(new DeviceBean("停用","停用-不记录不报警",3));
+        dialog_stateNames = new CustomDialog.Builder().setLayout(R.layout.activity_home_currentstates_dialog).setDatas(stateNames)
+                .setRecyclerViewId(R.id.recyclerView_currentStates).setContext(this).setType(1).build();
+        dialog_stateNames.setDialogOnItemClick(this);
         blueteethNames = new ArrayList<>();
-        blueteethdialog = new CustomDialog.Builder()
-                .setLayout(R.layout.activity_home_blueteeth_dialog)
-                .setDatas(blueteethNames)
-                .setRecyclerViewId(R.id.recyclerView_blueteeths)
-                .setContext(this)
-                .setType(2)
-                .build();
-        blueteethdialog.setDialogOnItemClick(new CustomDialog.DialogOnItemClick() {
-            @Override
-            public void itemClick(String id, String name, int status) {
-                blueteethdialog.dismiss();
-                Toast.makeText(HomeActivity.this,id+name,Toast.LENGTH_SHORT).show();
-            }
-        });
-        exitdialog = new CustomDialog.Builder()
-                .setLayout(R.layout.activity_home_exit_dialog)
-                .setContext(this)
-                .setLeftBtnId(R.id.exit_cancel)
-                .setRightBtnId(R.id.exit_confirm)
-                .setListener(new CustomDialog.OnClickListener() {
-                    @Override
-                    public void onLeftClick(Dialog dialog) {
-                        exitdialog.dismiss();
-                    }
-
-                    @Override
-                    public void onRightClick(Dialog dialog) {
-                        exitdialog.dismiss();
-                        finish();
-                    }
-                })
-                .build();
+        blueteethdialog = new CustomDialog.Builder().setLayout(R.layout.activity_home_blueteeth_dialog).setDatas(blueteethNames)
+                .setRecyclerViewId(R.id.recyclerView_blueteeths).setContext(this).setType(2).build();
+        blueteethdialog.setDialogOnItemClick(this);
+        exitdialog = new CustomDialog.Builder().setLayout(R.layout.activity_home_exit_dialog).setContext(this)
+                .setLeftBtnId(R.id.exit_cancel).setRightBtnId(R.id.exit_confirm).setListener(this).build();
     }
 
     private void initViews() {
@@ -383,7 +215,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         liner_tv_ku_one = findViewById(R.id.liner_tv_ku_one);
         liner_tv_ku_two = findViewById(R.id.liner_tv_ku_two);
         liner_tv_ku_three = findViewById(R.id.liner_tv_ku_three);
-        recyclerView = findViewById(R.id.recyclerView);
         tv_noData = findViewById(R.id.tv_noData);
         toolbar = findViewById(R.id.toolbar);
         drawer_layout = findViewById(R.id.drawer_layout);
@@ -394,6 +225,13 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         tv_drawlayout_left_loginName = findViewById(R.id.drawlayout_left_loginName);
         tvdrawlayout_left_loginDept = findViewById(R.id.drawlayout_left_loginDept);
         progress_refresh = findViewById(R.id.progress_refresh);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        tempertureBeans = new ArrayList<>();
+        temptureAdapter = new HomeTemptureAdapter(tempertureBeans,this);
+        temptureAdapter.setTempOnItemClick(this);
+        recyclerView.setAdapter(temptureAdapter);
 
         recyclerView_am = findViewById(R.id.recyclerView_am);
         recyclerView_am.setLayoutManager(new LinearLayoutManager(this));
@@ -566,7 +404,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
             String deviceId = jsonObject.getString("id");
             String deviceName = jsonObject.getString("name");
             Integer deviceType = jsonObject.getInteger("status");
-            deviceNames.add(new Bean(deviceId,deviceName,deviceType));
+            deviceNames.add(new DeviceBean(deviceId,deviceName,deviceType));
         }
         if(currentDeviceId==null){
             currentDeviceId = deviceNames.get(0).getId();
@@ -614,6 +452,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
             }else {
                 tv_taskState.setText("已停运");
             }
+            requestTempturesByTaskId("");
         }else if(tasks_pm.size()==0 && tasks_am.size()>0){
             DeviceTask task = tasks_am.get(tasks_am.size() - 1);
             task.setRed(true);
@@ -632,6 +471,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
             }else {
                 tv_taskState.setText("已停运");
             }
+            requestTempturesByTaskId("");
         }else if(tasks_pm.size()>0 && tasks_am.size()>0){
             DeviceTask task = tasks_pm.get(tasks_pm.size() - 1);
             task.setRed(true);
@@ -650,6 +490,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
             }else {
                 tv_taskState.setText("已停运");
             }
+            requestTempturesByTaskId("");
         }else if(tasks_am.size()==0 && tasks_pm.size()==0){
             recyclerView_am.setVisibility(View.GONE);
             recyclerView_pm.setVisibility(View.GONE);
@@ -658,6 +499,13 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
 
             tv_taskInfo.setText("当天无任务");
             tv_taskState.setText("已停运");
+            tv_noData.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            all_tempertures_selected = false;
+            img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+            liner_tv_ku_one.setText("一");
+            liner_tv_ku_two.setText("一");
+            liner_tv_ku_three.setText("一");
         }
         adapter_am.notifyDataSetChanged();
         adapter_pm.notifyDataSetChanged();
@@ -680,8 +528,29 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         handler.sendEmptyMessageDelayed(3,1000);
     }
 
+    private void requestTempturesByTaskId(String taskId){
+        tempertureBeans.clear();
+        tempertureBeans.add(new TempertureBean("02-22","22.5°C","22.5°C","22.5°C",false));
+        tempertureBeans.add(new TempertureBean("02-22","22.4°C","22.4°C","22.4°C",false));
+        tempertureBeans.add(new TempertureBean("02-22","22.3°C","22.3°C","22.3°C",false));
+        tempertureBeans.add(new TempertureBean("02-22","22.2°C","22.2°C","22.2°C",false));
+        temptureAdapter.notifyDataSetChanged();
+        if(tempertureBeans.size()>0){
+            tv_noData.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            liner_tv_ku_one.setText("50420045");
+            liner_tv_ku_two.setText("82006845");
+            liner_tv_ku_three.setText("52007889");
+        }else {
+            tv_noData.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            liner_tv_ku_one.setText("一");
+            liner_tv_ku_two.setText("一");
+            liner_tv_ku_three.setText("一");
+        }
+    }
+
     private void createOrUpdateCurrentDayTaskTime() {
-        Calendar calendar = Calendar.getInstance();
         mYear = calendar.get(Calendar.YEAR);
         mMonth = calendar.get(Calendar.MONTH)+1;
         mDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
@@ -704,10 +573,10 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     }
 
     @Override
-    public void getBluetoothList(ArrayList<DeviceBean> deviceBeans) {
+    public void getBluetoothList(ArrayList<BlueteethDeviceBean> deviceBeans) {
         blueteethNames.clear();
         for(int i=0;i<deviceBeans.size();i++){
-            blueteethNames.add(new Bean(deviceBeans.get(i).getName(),deviceBeans.get(i).getAddress(),1));
+            blueteethNames.add(new DeviceBean(deviceBeans.get(i).getName(),deviceBeans.get(i).getAddress(),1));
         }
         TextView textView = blueteethdialog.findViewById(R.id.tv_blueteeth);
         blueteethdialog.setData(blueteethNames);
@@ -724,11 +593,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         switch (requestCode) {
             case 1: {
                 if (grantResults.length > 0&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(!BluetoothUtils.getInstance().isEnabled()){
-                        BluetoothUtils.getInstance().enable();
-                    }
-                    blueteethdialog.show();
-                    BluetoothUtils.getInstance().startDiscovery();
+                    searchBlooTeeth();
                 } else {
                     Toast.makeText(this,"拒绝了蓝牙权限,无法使用蓝牙打印",Toast.LENGTH_SHORT).show();
                 }
@@ -745,11 +610,181 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
             }
         }else {
-            if(!BluetoothUtils.getInstance().isEnabled()){
-                BluetoothUtils.getInstance().enable();
-            }
-            blueteethdialog.show();
-            BluetoothUtils.getInstance().startDiscovery();
+            searchBlooTeeth();
         }
+    }
+
+    private void searchBlooTeeth(){
+        if(!BluetoothUtils.getInstance().isEnabled()){
+            BluetoothUtils.getInstance().enable();
+        }
+        blueteethdialog.show();
+        BluetoothUtils.getInstance().startDiscovery();
+    }
+
+    private void imgRightOrLeftClick(boolean isRight){
+        am_task_selected = false;
+        pm_task_selected = false;
+        caculteDate(isRight);
+        tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
+        dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
+        progress_refresh.setVisibility(View.VISIBLE);
+        requestDeviceTasks();
+    }
+
+    private void selectedAmOrPmTasks(boolean isAm){
+        if(isAm){
+            if(!am_task_selected){
+                am_task_selected = true;
+                img_am_tasks.setImageResource(R.drawable.img_green_printer);
+            }else {
+                am_task_selected = false;
+                img_am_tasks.setImageResource(R.drawable.img_white_printer);
+            }
+            adapter_am.setAllSelected();
+        }else {
+            if(!pm_task_selected){
+                pm_task_selected = true;
+                img_pm_tasks.setImageResource(R.drawable.img_green_printer);
+            }else {
+                pm_task_selected = false;
+                img_pm_tasks.setImageResource(R.drawable.img_white_printer);
+            }
+            adapter_pm.setAllSelected();
+        }
+    }
+
+    private void selectedAllTempturesOrNot(){
+        if(!all_tempertures_selected){
+            all_tempertures_selected = true;
+            img_allPrintSelect.setImageResource(R.drawable.img_green_printer);
+        }else {
+            all_tempertures_selected = false;
+            img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+        }
+        temptureAdapter.selectedAll(all_tempertures_selected);
+    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.tv_dataTime:
+                dialog_dateTime.show();
+                break;
+            case R.id.img_home_task_list:
+                drawer_layout.openDrawer(Gravity.LEFT);
+                break;
+            case R.id.img_right:
+                imgRightOrLeftClick(true);
+                break;
+            case R.id.img_left:
+                imgRightOrLeftClick(false);
+                break;
+            case R.id.tv_home_task_list_deviceName:
+                am_task_selected = false;
+                pm_task_selected = false;
+                dialog_deviceNames.show();
+                dialog_deviceNames.setData(deviceNames);
+                break;
+            case R.id.tv_currentState:
+                dialog_stateNames.show();
+                dialog_stateNames.setData(stateNames);
+                break;
+            case R.id.img_am_tasks:
+                selectedAmOrPmTasks(true);
+                break;
+            case R.id.img_pm_tasks:
+                selectedAmOrPmTasks(false);
+                break;
+            case R.id.tv_taskState:
+                createOrUpdateCurrentDayTaskTime();
+                break;
+            case R.id.img_allPrintSelect:
+                selectedAllTempturesOrNot();
+                break;
+        }
+    }
+
+    @Override
+    public void itemClick(int position, DeviceTask task) {
+        adapterItemSelected(task);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.blueTeethPrint:
+                checkPermission();
+                break;
+            case R.id.exit:
+                exitdialog.show();
+                break;
+        }
+        return false;
+    }
+
+    @Override
+    public void itemClick(int position, TempertureBean bean) {
+        for(TempertureBean b:tempertureBeans){
+            if(!b.isSelected()){
+                all_tempertures_selected = false;
+                break;
+            }
+            all_tempertures_selected = true;
+        }
+        if(all_tempertures_selected){
+            img_allPrintSelect.setImageResource(R.drawable.img_green_printer);
+        }else {
+            img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        mYear = year;
+        mMonth = month+1;
+        mDayOfMonth = dayOfMonth;
+        tv_dataTime.setText(year+"-"+(month+1)+"-"+dayOfMonth);
+        progress_refresh.setVisibility(View.VISIBLE);
+        img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+        all_tempertures_selected = false;
+        requestDeviceTasks();
+    }
+
+    @Override
+    public void itemClick(CustomDialog dialog, String id, String name, int status) {
+        if(dialog==dialog_deviceNames){
+            currentDeviceId = id;
+            tv_home_task_list_deviceName.setText(name);
+            setStatus(status);
+            dialog_deviceNames.dismiss();
+            progress_refresh.setVisibility(View.VISIBLE);
+            img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+            all_tempertures_selected = false;
+            mYear = calendar.get(Calendar.YEAR);
+            mMonth = calendar.get(Calendar.MONTH)+1;
+            mDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+            tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
+            dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
+            requestDeviceTasks();
+        }else if(dialog==dialog_stateNames){
+            updateDeviceStatus(status);
+            tv_currentState.setText(id);
+            dialog_stateNames.dismiss();
+        }else if(dialog==blueteethdialog){
+            blueteethdialog.dismiss();
+            Toast.makeText(HomeActivity.this,id+name,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onLeftClick(Dialog dialog) {
+        exitdialog.dismiss();
+    }
+
+    @Override
+    public void onRightClick(Dialog dialog) {
+        exitdialog.dismiss();
+        finish();
     }
 }

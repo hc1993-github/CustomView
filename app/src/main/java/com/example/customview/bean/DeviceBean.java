@@ -1,20 +1,24 @@
 package com.example.customview.bean;
 
-public class DeviceBean extends Bean{
-    String devicename;
-    String address;
-
-    public DeviceBean(String name, String address) {
-        super(name,address,1);
-        this.devicename = name;
-        this.address = address;
+public class DeviceBean {
+    String id;
+    String name;
+    int status;
+    public DeviceBean(String id, String name, int status) {
+        this.id = id;
+        this.name = name;
+        this.status = status;
     }
 
     public String getName() {
-        return devicename;
+        return name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getId() {
+        return id;
+    }
+
+    public int getStatus() {
+        return status;
     }
 }

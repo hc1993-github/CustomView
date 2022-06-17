@@ -11,16 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.customview.R;
-import com.example.customview.bean.Bean;
 import com.example.customview.bean.DeviceBean;
 
 import java.util.List;
 
 public class HomeBlueTeethAdapter extends RecyclerView.Adapter<HomeBlueTeethAdapter.HomeBlueTeethAdapterHolder>{
-    List<? extends Bean> datas;
+    List<? extends DeviceBean> datas;
     Context context;
     OnItemClick onItemClick;
-    public HomeBlueTeethAdapter(List<? extends Bean> datas, Context context) {
+    public HomeBlueTeethAdapter(List<? extends DeviceBean> datas, Context context) {
         this.datas = datas;
         this.context = context;
     }
@@ -34,7 +33,7 @@ public class HomeBlueTeethAdapter extends RecyclerView.Adapter<HomeBlueTeethAdap
 
     @Override
     public void onBindViewHolder(@NonNull HomeBlueTeethAdapterHolder holder, int position) {
-        Bean bean = datas.get(position);
+        DeviceBean bean = datas.get(position);
         holder.textView_name.setText(bean.getId());
         holder.textView_address.setText(bean.getName());
         holder.textView_name.setTag(R.id.tag1,datas.get(position));
@@ -61,13 +60,13 @@ public class HomeBlueTeethAdapter extends RecyclerView.Adapter<HomeBlueTeethAdap
             relativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Bean bean = (Bean) textView_name.getTag(R.id.tag1);
+                    DeviceBean bean = (DeviceBean) textView_name.getTag(R.id.tag1);
                     onItemClick.itemClick(bean);
                 }
             });
         }
     }
     public interface OnItemClick{
-        void itemClick(Bean bean);
+        void itemClick(DeviceBean bean);
     }
 }
