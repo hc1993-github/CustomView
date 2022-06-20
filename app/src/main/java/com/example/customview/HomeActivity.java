@@ -29,13 +29,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.example.customview.adapter.BaseAdapter;
 import com.example.customview.adapter.HomeLeftAdapter;
 import com.example.customview.adapter.HomeTemptureAdapter;
+import com.example.customview.adapter.TestAdapter;
 import com.example.customview.bean.DeviceBean;
 import com.example.customview.bean.BlueteethDeviceBean;
 import com.example.customview.bean.DeviceTask;
-import com.example.customview.bean.LoginResultBean;
 import com.example.customview.bean.TempertureBean;
+import com.example.customview.bean.LoginResultBean;
 import com.example.customview.util.BluetoothUtils;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
@@ -149,9 +151,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     private void initDatas() {
         Intent intent = getIntent();
         LoginResultBean bean = (LoginResultBean) intent.getSerializableExtra("loginResultBean");
-        department_id = bean.getId();
-        tv_drawlayout_left_loginName.setText("登录用户:"+bean.getName());
-        tvdrawlayout_left_loginDept.setText("登录部门:"+bean.getFullName());
+        department_id = bean.getDeptId();
+        tv_drawlayout_left_loginName.setText("登录用户:"+bean.getDeptName());
+        tvdrawlayout_left_loginDept.setText("登录部门:"+bean.getDeptFullName());
         requestDeviceInfos();
         requestDeviceTasks();
     }

@@ -19,7 +19,6 @@
         android:layout_toRightOf="@id/img_temperture">
         <TextView
             android:id="@+id/tv_temperture_time"
-            android:text="02-22 12:55"
             android:textSize="14sp"
             android:textColor="#000000"
             android:gravity="center"
@@ -28,7 +27,6 @@
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/tv_temperture_store1"
-            android:text="22.5°C"
             android:textSize="14sp"
             android:textColor="#000000"
             android:gravity="center"
@@ -37,7 +35,6 @@
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/tv_temperture_store2"
-            android:text="22.5°C"
             android:textSize="14sp"
             android:textColor="#000000"
             android:gravity="center"
@@ -46,7 +43,6 @@
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/tv_temperture_store3"
-            android:text="22.5°C"
             android:textSize="14sp"
             android:textColor="#000000"
             android:gravity="center"
