@@ -20,6 +20,7 @@ import com.example.customview.bean.LoginResultBean;
 import com.example.customview.util.MD5Util;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 
@@ -131,8 +132,8 @@ public class LoginActivity extends AppCompatActivity {
     private void AnalyseLogin(String message) {
         dialog.dismiss();
         if(message.contains("登陆成功")){
-            JSONObject jsonObject = JSONArray.parseObject(message);
-            LoginResultBean bean = new LoginResultBean(jsonObject);
+            Gson gson = new Gson();
+            LoginResultBean bean = gson.fromJson(message, LoginResultBean.class);
             Intent intent = new Intent(this, HomeActivity.class);
             intent.putExtra("loginResultBean",bean);
             startActivity(intent);

@@ -1,22 +1,41 @@
 package com.example.customview.bean;
 
-import com.alibaba.fastjson.JSONObject;
-
 import java.io.Serializable;
 
 public class LoginResultBean implements Serializable {
-    JSONObject loginResult;
-
-    public LoginResultBean(JSONObject loginResult) {
-        this.loginResult = loginResult;
+    String message;
+    String SESSIONID;
+    department department;
+    account account;
+    protected class department implements Serializable{
+        String id;
+        String code;
+        String name;
+        int type;
+        String fullName;
+        float lon;
+        float lat;
+        String address;
+        String nationalNo;
     }
-    public String getId(){
-        return loginResult.getJSONObject("department").getString("id");
+    protected class account implements Serializable{
+        String id;
+        String name;
+        String code;
+        String departmentId;
+        String mobile;
+        String phone;
+        String pwd;
+        boolean app;
+        int job;
     }
-    public String getName(){
-        return loginResult.getJSONObject("department").getString("name");
+    public String getDeptId(){
+        return department.id;
     }
-    public String getFullName(){
-        return loginResult.getJSONObject("department").getString("fullName");
+    public String getDeptName(){
+        return department.name;
+    }
+    public String getDeptFullName(){
+        return department.fullName;
     }
 }
