@@ -29,10 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.example.customview.adapter.BaseAdapter;
 import com.example.customview.adapter.HomeLeftAdapter;
 import com.example.customview.adapter.HomeTemptureAdapter;
-import com.example.customview.adapter.TestAdapter;
 import com.example.customview.bean.DeviceBean;
 import com.example.customview.bean.BlueteethDeviceBean;
 import com.example.customview.bean.DeviceTask;
