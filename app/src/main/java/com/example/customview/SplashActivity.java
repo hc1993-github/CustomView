@@ -27,9 +27,13 @@ import com.example.customview.util.OkhttpUtil;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -44,6 +48,7 @@ import okhttp3.Response;
 public class SplashActivity extends AppCompatActivity {
     public static final String secretKey = "8t13YLhm";
     String string;
+    String downloadMD5;
     Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -52,7 +57,10 @@ public class SplashActivity extends AppCompatActivity {
                     AnalyseVersion(string);
                     break;
                 case 2:
-                    doRealInstall();
+                    checkMD5();
+                    break;
+                case 3:
+                    apkInstall();
                     break;
             }
         }
@@ -123,6 +131,7 @@ public class SplashActivity extends AppCompatActivity {
             }
             //doLogin("4600000000","Dev123123");
         }else {
+            Toast.makeText(SplashActivity.this,"发现新版本,下载安装中...",Toast.LENGTH_SHORT).show();
             String result = AnalyseDES(message,secretKey);
             JSONObject jsonObject = JSONArray.parseObject(result);
             downLoadZipAndInstall(jsonObject.getString("path"),jsonObject.getString("md5"),jsonObject.getString("compressPwd"));
@@ -163,6 +172,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void downLoadZipAndInstall(String downLoadPath,String md5,String unZipPwd) {
+        downloadMD5 = md5;
         Request request = new Request.Builder().url(downLoadPath).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
@@ -173,14 +183,14 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 InputStream inputStream = response.body().byteStream();
-                doInstall(inputStream);
+                downLoad(inputStream);
             }
         });
     }
 
-    private void doInstall(InputStream inputStream) {
+    private void downLoad(InputStream inputStream) {
         FileOutputStream fileOutputStream = null;
-        File file = null;
+        File file =null;
         try {
             file = new File(Environment.getExternalStorageDirectory(),"ColdchainPrint.apk");
             if(file.exists()){
@@ -194,12 +204,29 @@ public class SplashActivity extends AppCompatActivity {
                 fileOutputStream.write(buffer,0,length);
                 fileOutputStream.flush();
             }
-            handler.sendEmptyMessageDelayed(2,1000);
+            handler.sendEmptyMessageDelayed(2,3000);
         }catch (Exception e){
             e.printStackTrace();
+        }finally {
+            try {
+                fileOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
-    private void doRealInstall(){
+    private void checkMD5(){
+        File file = new File(Environment.getExternalStorageDirectory(),"ColdchainPrint.apk");
+        String md5ByFile = getMd5ByFile(file);
+        if(!downloadMD5.equals(md5ByFile)){
+            Toast.makeText(this,"更新失败,退出应用",Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        handler.sendEmptyMessageDelayed(3,3000);
+
+    }
+    private void apkInstall(){
         File file = new File(Environment.getExternalStorageDirectory(),"ColdchainPrint.apk");
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
@@ -239,6 +266,59 @@ public class SplashActivity extends AppCompatActivity {
             }, 1);
         }else {
             getVersion();
+        }
+    }
+
+    public String getMd5ByFile(File file){
+        FileInputStream in =null ;
+        StringBuffer sb = new StringBuffer();
+        try {
+            in = new FileInputStream(file);
+            FileChannel channel = in.getChannel();
+            long position = 0;
+            long total = file.length();
+            long page = 1024 * 1024 * 500;
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            while (position < total) {
+                long size = page <= total - position ? page : total - position;
+                MappedByteBuffer byteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, position, size);
+                position += size;
+                md5.update(byteBuffer);
+            }
+            byte[] b = md5.digest();
+
+            for (int i = 0; i < b.length; i++) {
+                sb.append(byteToChars(b[i]));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sb.toString().toLowerCase();
+    }
+    private char[] byteToChars(byte b) {
+        int h = ((b & 0xf0) >> 4);
+        int l = (b & 0x0f);
+        char[] r = new char[2];
+        r[0] = intToChart(h);
+        r[1] = intToChart(l);
+
+        return r;
+    }
+    private char intToChart(int i) {
+        if (i < 0 || i > 15) {
+            return ' ';
+        }
+        if (i < 10) {
+            return (char) (i + 48);
+        } else {
+            return (char) (i + 55);
         }
     }
 }
