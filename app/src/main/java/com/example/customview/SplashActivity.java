@@ -1,10 +1,14 @@
 package com.example.customview;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -13,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -21,7 +26,10 @@ import com.example.customview.util.MD5Util;
 import com.example.customview.util.OkhttpUtil;
 import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -43,6 +51,9 @@ public class SplashActivity extends AppCompatActivity {
                 case 1:
                     AnalyseVersion(string);
                     break;
+                case 2:
+                    doRealInstall();
+                    break;
             }
         }
     };
@@ -50,7 +61,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        getVersion();
+        checkPermission();
     }
 
     @Override
@@ -59,12 +70,24 @@ public class SplashActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==1){
+            if(permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                getVersion();
+            }else {
+                Toast.makeText(this,"未赋予读写权限,在线更新失败",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private void getVersion() {
         try {
             PackageManager pm = getPackageManager();
             PackageInfo pi = pm.getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
             int versionCode = pi.versionCode;
-            Request request = new Request.Builder().url("http://221.224.159.210:38283/datacenter/outward/package/autoUpdateApp?type=ColdchainPrint&vnumCurrent="+6+"&androidVersion=23").build();
+            Request request = new Request.Builder().url("http://221.224.159.210:38283/datacenter/outward/package/autoUpdateApp?type=ColdchainPrint&vnumCurrent="+versionCode+"&androidVersion=23").build();
             OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -149,11 +172,48 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-
+                InputStream inputStream = response.body().byteStream();
+                doInstall(inputStream);
             }
         });
     }
 
+    private void doInstall(InputStream inputStream) {
+        FileOutputStream fileOutputStream = null;
+        File file = null;
+        try {
+            file = new File(Environment.getExternalStorageDirectory(),"ColdchainPrint.apk");
+            if(file.exists()){
+                file.delete();
+                file.createNewFile();
+            }
+            fileOutputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024*8];
+            int length = 0;
+            while ((length=inputStream.read(buffer))!=-1){
+                fileOutputStream.write(buffer,0,length);
+                fileOutputStream.flush();
+            }
+            handler.sendEmptyMessageDelayed(2,1000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void doRealInstall(){
+        File file = new File(Environment.getExternalStorageDirectory(),"ColdchainPrint.apk");
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        Uri uri = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            uri = FileProvider.getUriForFile(this, getPackageName() + ".provider.updatefileprovider", file);
+        } else {
+            uri = Uri.fromFile(file);
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setDataAndType(uri,"application/vnd.android.package-archive");
+        startActivity(intent);
+    }
     private String AnalyseDES(String message,String secretKey) {
         try {
             byte[] bytes = secretKey.getBytes();
@@ -168,5 +228,17 @@ public class SplashActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            }, 1);
+        }else {
+            getVersion();
+        }
     }
 }

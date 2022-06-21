@@ -9,7 +9,7 @@ android {
         applicationId "com.example.customview"
         minSdk 23
         targetSdk 23
-        versionCode 1
+        versionCode 8
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -39,4 +39,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.8.0'
     implementation 'com.alibaba:fastjson:1.1.54.android'
     implementation 'com.google.code.gson:gson:2.8.6'
+    //implementation 'com.github.ibshe:AppUpdateLibX:1.0.7'
+    //implementation project(':ulib')
 }
