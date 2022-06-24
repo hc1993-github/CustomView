@@ -233,7 +233,7 @@ public class SplashActivity extends AppCompatActivity {
         Uri uri = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            uri = FileProvider.getUriForFile(this, getPackageName() + ".provider.updatefileprovider", file);
+            uri = FileProvider.getUriForFile(this, getPackageName() + ".FileProvider", file);
         } else {
             uri = Uri.fromFile(file);
         }
