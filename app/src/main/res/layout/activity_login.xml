@@ -44,7 +44,7 @@
         app:layout_constraintVertical_bias="0.3"/>
     <EditText
         android:id="@+id/ed_ip"
-        android:layout_width="180dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="221.224.159.210"
         android:hint="请输入IP地址"
