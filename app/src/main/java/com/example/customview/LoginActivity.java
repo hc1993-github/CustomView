@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.customview.bean.LoginResultBean;
+import com.example.customview.constant.GlobalData;
 import com.example.customview.util.MD5Util;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
@@ -100,12 +101,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dialog.show();
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("ip",ed_ip.getText().toString().trim());
-                editor.putString("port",ed_port.getText().toString().trim());
-                editor.putString("name",ed_name.getText().toString().trim());
-                editor.putString("password",ed_password.getText().toString().trim());
-                editor.commit();
                 handler.sendEmptyMessageDelayed(0,1500);
             }
         });
@@ -114,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
         FormBody.Builder formBody =  new FormBody.Builder();
         formBody.add("current.code",name);
         formBody.add("current.pwd", MD5Util.md5(password));
-        Request request = new Request.Builder().url("http://221.224.159.210:38111/ssmanage/accountLogin!login4Client.action").post(formBody.build()).build();
+        Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.loginPort+GlobalData.loginUrl).post(formBody.build()).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -132,6 +127,12 @@ public class LoginActivity extends AppCompatActivity {
     private void AnalyseLogin(String message) {
         dialog.dismiss();
         if(message.contains("登陆成功")){
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("ip",ed_ip.getText().toString().trim());
+            editor.putString("port",ed_port.getText().toString().trim());
+            editor.putString("name",ed_name.getText().toString().trim());
+            editor.putString("password",ed_password.getText().toString().trim());
+            editor.commit();
             Gson gson = new Gson();
             LoginResultBean bean = gson.fromJson(message, LoginResultBean.class);
             Intent intent = new Intent(this, HomeActivity.class);

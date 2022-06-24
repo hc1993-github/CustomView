@@ -36,6 +36,7 @@ import com.example.customview.bean.BlueteethDeviceBean;
 import com.example.customview.bean.DeviceTask;
 import com.example.customview.bean.TempertureBean;
 import com.example.customview.bean.LoginResultBean;
+import com.example.customview.constant.GlobalData;
 import com.example.customview.util.BluetoothUtils;
 import com.example.customview.util.OkhttpUtil;
 import com.example.customview.view.CustomDialog;
@@ -247,7 +248,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     }
 
     private void updateDeviceStatus(int status) {
-        Request request = new Request.Builder().url("http://221.224.159.210:38111/coldchain/public/deviceChangeStatus!changeStatus.action?id="+currentDeviceId+"&newstatus="+ status).build();
+        Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.updateDeviceStatusPort+GlobalData.updateDeviceStatusUrl+currentDeviceId+"&newstatus="+ status).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -274,7 +275,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     }
 
     private void requestDeviceInfos(){
-        Request request = new Request.Builder().url("http://221.224.159.210:38111/coldchain/public/coldchainPrint!getAllCars.action?departmentId="+department_id).build();
+        Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.requestDeviceInfosPort+GlobalData.requestDeviceInfosUrl+department_id).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -293,7 +294,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     }
 
     private void requestDeviceTasks(){
-        Request request = new Request.Builder().url("http://221.224.159.210:38111/coldchain/public/coldchainPrint!getTransit.action?startTime="+mYear+"-"+mMonth+"-"+mDayOfMonth+"&deviceId="+currentDeviceId).build();
+        Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.requestDeviceTasksPort+GlobalData.requestDeviceTasksUrl+mYear+"-"+mMonth+"-"+mDayOfMonth+"&deviceId="+currentDeviceId).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -568,7 +569,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
         dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
         tv_taskState.setText("运输中");
-        Request request = new Request.Builder().url("http://221.224.159.210:38111/coldchain/public/deviceTransit!transit.action?id="+currentDeviceId).build();
+        Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.createOrUpdateCurrentDayTaskTimePort+GlobalData.createOrUpdateCurrentDayTaskTimeUrl+currentDeviceId).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {

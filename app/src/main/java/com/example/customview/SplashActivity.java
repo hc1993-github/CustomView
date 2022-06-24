@@ -22,6 +22,7 @@ import androidx.core.content.FileProvider;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.customview.bean.LoginResultBean;
+import com.example.customview.constant.GlobalData;
 import com.example.customview.util.MD5Util;
 import com.example.customview.util.OkhttpUtil;
 import com.google.gson.Gson;
@@ -95,7 +96,7 @@ public class SplashActivity extends AppCompatActivity {
             PackageManager pm = getPackageManager();
             PackageInfo pi = pm.getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES);
             int versionCode = pi.versionCode;
-            Request request = new Request.Builder().url("http://221.224.159.210:38283/datacenter/outward/package/autoUpdateApp?type=ColdchainPrint&vnumCurrent="+versionCode+"&androidVersion=23").build();
+            Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.versionPort+GlobalData.versionUrl+versionCode+"&androidVersion=23").build();
             OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -142,7 +143,7 @@ public class SplashActivity extends AppCompatActivity {
         FormBody.Builder formBody =  new FormBody.Builder();
         formBody.add("current.code",name);
         formBody.add("current.pwd", MD5Util.md5(password));
-        Request request = new Request.Builder().url("http://221.224.159.210:38111/ssmanage/accountLogin!login4Client.action").post(formBody.build()).build();
+        Request request = new Request.Builder().url(GlobalData.baseIp+GlobalData.loginPort+GlobalData.loginUrl).post(formBody.build()).build();
         OkhttpUtil.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
