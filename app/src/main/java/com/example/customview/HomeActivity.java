@@ -398,117 +398,128 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
 
     private void AnalyseDevices(String string) {
         deviceNames.clear();
-        JSONArray jsonArray = JSONArray.parseArray(string);
-        for(int i=0;i<jsonArray.size();i++){
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String deviceId = jsonObject.getString("id");
-            String deviceName = jsonObject.getString("name");
-            Integer deviceType = jsonObject.getInteger("status");
-            deviceNames.add(new DeviceBean(deviceId,deviceName,deviceType));
+        try {
+            JSONArray jsonArray = JSONArray.parseArray(string);
+            for(int i=0;i<jsonArray.size();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String deviceId = jsonObject.getString("id");
+                String deviceName = jsonObject.getString("name");
+                Integer deviceType = jsonObject.getInteger("status");
+                deviceNames.add(new DeviceBean(deviceId,deviceName,deviceType));
+            }
+            if(currentDeviceId==null){
+                currentDeviceId = deviceNames.get(0).getId();
+                tv_home_task_list_deviceName.setText(deviceNames.get(0).getName());
+                setStatus(deviceNames.get(0).getStatus());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this,"设备信息解析失败",Toast.LENGTH_SHORT).show();
         }
-        if(currentDeviceId==null){
-            currentDeviceId = deviceNames.get(0).getId();
-            tv_home_task_list_deviceName.setText(deviceNames.get(0).getName());
-            setStatus(deviceNames.get(0).getStatus());
-        }
+
     }
 
     private void AnalyseDeviceTasks(String tasks) {
         tasks_am.clear();
         tasks_pm.clear();
-        JSONArray jsonArray = JSONArray.parseArray(tasks);
-        for(int i=0;i<jsonArray.size();i++){
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String taskId = jsonObject.getString("id");
-            String taskName = jsonObject.getString("task");
-            String taskDeviceId = jsonObject.getString("deviceId");
-            String taskDeviceCode = jsonObject.getString("deviceCode");
-            String taskStartTime = jsonObject.getString("startTime");
-            String taskEndTime = jsonObject.getString("endTime");
-            String xiaoshi = taskStartTime.substring(11, 13);
-            if("00".equals(xiaoshi) || "01".equals(xiaoshi) ||"02".equals(xiaoshi) ||"03".equals(xiaoshi)
-                    ||"04".equals(xiaoshi) ||"05".equals(xiaoshi) ||"06".equals(xiaoshi) ||"07".equals(xiaoshi)
-                    ||"08".equals(xiaoshi) ||"09".equals(xiaoshi) ||"10".equals(xiaoshi) ||"11".equals(xiaoshi)){
-                tasks_am.add(new DeviceTask(taskId,taskName,taskDeviceId,taskDeviceCode,taskStartTime,taskEndTime,false,false));
-            }else {
-                tasks_pm.add(new DeviceTask(taskId,taskName,taskDeviceId,taskDeviceCode,taskStartTime,taskEndTime,false,false));
+        try {
+            JSONArray jsonArray = JSONArray.parseArray(tasks);
+            for(int i=0;i<jsonArray.size();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String taskId = jsonObject.getString("id");
+                String taskName = jsonObject.getString("task");
+                String taskDeviceId = jsonObject.getString("deviceId");
+                String taskDeviceCode = jsonObject.getString("deviceCode");
+                String taskStartTime = jsonObject.getString("startTime");
+                String taskEndTime = jsonObject.getString("endTime");
+                String xiaoshi = taskStartTime.substring(11, 13);
+                if("00".equals(xiaoshi) || "01".equals(xiaoshi) ||"02".equals(xiaoshi) ||"03".equals(xiaoshi)
+                        ||"04".equals(xiaoshi) ||"05".equals(xiaoshi) ||"06".equals(xiaoshi) ||"07".equals(xiaoshi)
+                        ||"08".equals(xiaoshi) ||"09".equals(xiaoshi) ||"10".equals(xiaoshi) ||"11".equals(xiaoshi)){
+                    tasks_am.add(new DeviceTask(taskId,taskName,taskDeviceId,taskDeviceCode,taskStartTime,taskEndTime,false,false));
+                }else {
+                    tasks_pm.add(new DeviceTask(taskId,taskName,taskDeviceId,taskDeviceCode,taskStartTime,taskEndTime,false,false));
+                }
             }
+            if(tasks_pm.size()>0 && tasks_am.size()==0){
+                DeviceTask task = tasks_pm.get(tasks_pm.size() - 1);
+                task.setRed(true);
+                task.setSelected(true);
+                recyclerView_am.setVisibility(View.GONE);
+                recyclerView_pm.setVisibility(View.VISIBLE);
+                am_tv.setVisibility(View.VISIBLE);
+                pm_tv.setVisibility(View.GONE);
+
+                String name = tasks_pm.get(tasks_pm.size()-1).getTaskName();
+                String start = tasks_pm.get(tasks_pm.size()-1).getTaskStartTime().substring(11);
+                String end = tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null?"": tasks_pm.get(tasks_pm.size()-1).getTaskEndTime().substring(11);
+                tv_taskInfo.setText(name+"   "+start+" - "+end);
+                if(tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null){
+                    tv_taskState.setText("运输中");
+                }else {
+                    tv_taskState.setText("已停运");
+                }
+                requestTempturesByTaskId("");
+            }else if(tasks_pm.size()==0 && tasks_am.size()>0){
+                DeviceTask task = tasks_am.get(tasks_am.size() - 1);
+                task.setRed(true);
+                task.setSelected(true);
+                recyclerView_am.setVisibility(View.VISIBLE);
+                recyclerView_pm.setVisibility(View.GONE);
+                am_tv.setVisibility(View.GONE);
+                pm_tv.setVisibility(View.VISIBLE);
+
+                String name = tasks_am.get(tasks_am.size()-1).getTaskName();
+                String start = tasks_am.get(tasks_am.size()-1).getTaskStartTime().substring(11);
+                String end = tasks_am.get(tasks_am.size()-1).getTaskEndTime()==null?"": tasks_am.get(tasks_am.size()-1).getTaskEndTime().substring(11);
+                tv_taskInfo.setText(name+"   "+start+" - "+end);
+                if(tasks_am.get(tasks_am.size()-1).getTaskEndTime()==null){
+                    tv_taskState.setText("运输中");
+                }else {
+                    tv_taskState.setText("已停运");
+                }
+                requestTempturesByTaskId("");
+            }else if(tasks_pm.size()>0 && tasks_am.size()>0){
+                DeviceTask task = tasks_pm.get(tasks_pm.size() - 1);
+                task.setRed(true);
+                task.setSelected(true);
+                recyclerView_am.setVisibility(View.VISIBLE);
+                recyclerView_pm.setVisibility(View.VISIBLE);
+                am_tv.setVisibility(View.GONE);
+                pm_tv.setVisibility(View.GONE);
+
+                String name = tasks_pm.get(tasks_pm.size()-1).getTaskName();
+                String start = tasks_pm.get(tasks_pm.size()-1).getTaskStartTime().substring(11);
+                String end = tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null?"": tasks_pm.get(tasks_pm.size()-1).getTaskEndTime().substring(11);
+                tv_taskInfo.setText(name+"   "+start+" - "+end);
+                if(tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null){
+                    tv_taskState.setText("运输中");
+                }else {
+                    tv_taskState.setText("已停运");
+                }
+                requestTempturesByTaskId("");
+            }else if(tasks_am.size()==0 && tasks_pm.size()==0){
+                recyclerView_am.setVisibility(View.GONE);
+                recyclerView_pm.setVisibility(View.GONE);
+                am_tv.setVisibility(View.VISIBLE);
+                pm_tv.setVisibility(View.VISIBLE);
+
+                tv_taskInfo.setText("当天无任务");
+                tv_taskState.setText("已停运");
+                tv_noData.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+                all_tempertures_selected = false;
+                img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
+                liner_tv_ku_one.setText("一");
+                liner_tv_ku_two.setText("一");
+                liner_tv_ku_three.setText("一");
+            }
+            adapter_am.notifyDataSetChanged();
+            adapter_pm.notifyDataSetChanged();
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this,"任务信息获取失败",Toast.LENGTH_SHORT).show();
         }
-        if(tasks_pm.size()>0 && tasks_am.size()==0){
-            DeviceTask task = tasks_pm.get(tasks_pm.size() - 1);
-            task.setRed(true);
-            task.setSelected(true);
-            recyclerView_am.setVisibility(View.GONE);
-            recyclerView_pm.setVisibility(View.VISIBLE);
-            am_tv.setVisibility(View.VISIBLE);
-            pm_tv.setVisibility(View.GONE);
-
-            String name = tasks_pm.get(tasks_pm.size()-1).getTaskName();
-            String start = tasks_pm.get(tasks_pm.size()-1).getTaskStartTime().substring(11);
-            String end = tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null?"": tasks_pm.get(tasks_pm.size()-1).getTaskEndTime().substring(11);
-            tv_taskInfo.setText(name+"   "+start+" - "+end);
-            if(tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null){
-                tv_taskState.setText("运输中");
-            }else {
-                tv_taskState.setText("已停运");
-            }
-            requestTempturesByTaskId("");
-        }else if(tasks_pm.size()==0 && tasks_am.size()>0){
-            DeviceTask task = tasks_am.get(tasks_am.size() - 1);
-            task.setRed(true);
-            task.setSelected(true);
-            recyclerView_am.setVisibility(View.VISIBLE);
-            recyclerView_pm.setVisibility(View.GONE);
-            am_tv.setVisibility(View.GONE);
-            pm_tv.setVisibility(View.VISIBLE);
-
-            String name = tasks_am.get(tasks_am.size()-1).getTaskName();
-            String start = tasks_am.get(tasks_am.size()-1).getTaskStartTime().substring(11);
-            String end = tasks_am.get(tasks_am.size()-1).getTaskEndTime()==null?"": tasks_am.get(tasks_am.size()-1).getTaskEndTime().substring(11);
-            tv_taskInfo.setText(name+"   "+start+" - "+end);
-            if(tasks_am.get(tasks_am.size()-1).getTaskEndTime()==null){
-                tv_taskState.setText("运输中");
-            }else {
-                tv_taskState.setText("已停运");
-            }
-            requestTempturesByTaskId("");
-        }else if(tasks_pm.size()>0 && tasks_am.size()>0){
-            DeviceTask task = tasks_pm.get(tasks_pm.size() - 1);
-            task.setRed(true);
-            task.setSelected(true);
-            recyclerView_am.setVisibility(View.VISIBLE);
-            recyclerView_pm.setVisibility(View.VISIBLE);
-            am_tv.setVisibility(View.GONE);
-            pm_tv.setVisibility(View.GONE);
-
-            String name = tasks_pm.get(tasks_pm.size()-1).getTaskName();
-            String start = tasks_pm.get(tasks_pm.size()-1).getTaskStartTime().substring(11);
-            String end = tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null?"": tasks_pm.get(tasks_pm.size()-1).getTaskEndTime().substring(11);
-            tv_taskInfo.setText(name+"   "+start+" - "+end);
-            if(tasks_pm.get(tasks_pm.size()-1).getTaskEndTime()==null){
-                tv_taskState.setText("运输中");
-            }else {
-                tv_taskState.setText("已停运");
-            }
-            requestTempturesByTaskId("");
-        }else if(tasks_am.size()==0 && tasks_pm.size()==0){
-            recyclerView_am.setVisibility(View.GONE);
-            recyclerView_pm.setVisibility(View.GONE);
-            am_tv.setVisibility(View.VISIBLE);
-            pm_tv.setVisibility(View.VISIBLE);
-
-            tv_taskInfo.setText("当天无任务");
-            tv_taskState.setText("已停运");
-            tv_noData.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-            all_tempertures_selected = false;
-            img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
-            liner_tv_ku_one.setText("一");
-            liner_tv_ku_two.setText("一");
-            liner_tv_ku_three.setText("一");
-        }
-        adapter_am.notifyDataSetChanged();
-        adapter_pm.notifyDataSetChanged();
     }
 
     private void adapterItemSelected(DeviceTask task) {
