@@ -123,7 +123,8 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                     break;
                 case 3:
                     progress_refresh.setVisibility(View.GONE);
-                    requestTempturesByTaskId("");
+                    String taskId = (String) msg.obj;
+                    requestTempturesByTaskId(taskId);
                     break;
             }
         }
@@ -433,10 +434,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 String taskDeviceCode = jsonObject.getString("deviceCode");
                 String taskStartTime = jsonObject.getString("startTime");
                 String taskEndTime = jsonObject.getString("endTime");
-                String xiaoshi = taskStartTime.substring(11, 13);
-                if("00".equals(xiaoshi) || "01".equals(xiaoshi) ||"02".equals(xiaoshi) ||"03".equals(xiaoshi)
-                        ||"04".equals(xiaoshi) ||"05".equals(xiaoshi) ||"06".equals(xiaoshi) ||"07".equals(xiaoshi)
-                        ||"08".equals(xiaoshi) ||"09".equals(xiaoshi) ||"10".equals(xiaoshi) ||"11".equals(xiaoshi)){
+                int xsp = Integer.parseInt(taskStartTime.substring(11, 13).substring(0,1));
+                int xss = Integer.parseInt(taskStartTime.substring(11, 13).substring(1));
+                if(xsp==0 || (xsp==1 && xss==0) || (xsp==1 && xss==1)){
                     tasks_am.add(new DeviceTask(taskId,taskName,taskDeviceId,taskDeviceCode,taskStartTime,taskEndTime,false,false));
                 }else {
                     tasks_pm.add(new DeviceTask(taskId,taskName,taskDeviceId,taskDeviceCode,taskStartTime,taskEndTime,false,false));
@@ -460,7 +460,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 }else {
                     tv_taskState.setText("已停运");
                 }
-                requestTempturesByTaskId("");
+                requestTempturesByTaskId(task.getTaskId());
             }else if(tasks_pm.size()==0 && tasks_am.size()>0){
                 DeviceTask task = tasks_am.get(tasks_am.size() - 1);
                 task.setRed(true);
@@ -479,7 +479,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 }else {
                     tv_taskState.setText("已停运");
                 }
-                requestTempturesByTaskId("");
+                requestTempturesByTaskId(task.getTaskId());
             }else if(tasks_pm.size()>0 && tasks_am.size()>0){
                 DeviceTask task = tasks_pm.get(tasks_pm.size() - 1);
                 task.setRed(true);
@@ -498,7 +498,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
                 }else {
                     tv_taskState.setText("已停运");
                 }
-                requestTempturesByTaskId("");
+                requestTempturesByTaskId(task.getTaskId());
             }else if(tasks_am.size()==0 && tasks_pm.size()==0){
                 recyclerView_am.setVisibility(View.GONE);
                 recyclerView_pm.setVisibility(View.GONE);
@@ -537,7 +537,10 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         progress_refresh.setVisibility(View.VISIBLE);
         img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
         all_tempertures_selected = false;
-        handler.sendEmptyMessageDelayed(3,1000);
+        Message message = new Message();
+        message.what = 3;
+        message.obj = task.getTaskId();
+        handler.sendMessageDelayed(message,1000);
     }
 
     private void requestTempturesByTaskId(String taskId){
