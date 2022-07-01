@@ -71,6 +71,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         checkPermission();
+        //add hello
     }
 
     @Override
