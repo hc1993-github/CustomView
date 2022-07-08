@@ -313,91 +313,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         });
     }
 
-    private void caculteDate(boolean isPlus) {
-        if(isPlus){
-            if(mMonth==1 || mMonth==3 ||mMonth==5 ||mMonth==7 ||mMonth==8 || mMonth==10){
-                if(mDayOfMonth==31){
-                    mDayOfMonth = 1;
-                    mMonth++;
-                }else {
-                    mDayOfMonth++;
-                }
-            }else if(mMonth==4 ||mMonth==6 ||mMonth==9 ||mMonth==11){
-                if(mDayOfMonth==30){
-                    mDayOfMonth = 1;
-                    mMonth++;
-                }else {
-                    mDayOfMonth++;
-                }
-            }else if(mMonth==12){
-                if(mDayOfMonth==31){
-                    mDayOfMonth = 1;
-                    mMonth=1;
-                    mYear++;
-                }else {
-                    mDayOfMonth++;
-                }
-            }else if(mMonth==2){
-                if(mYear % 4==0){
-                    if(mDayOfMonth==29){
-                        mDayOfMonth = 1;
-                        mMonth++;
-                    }else {
-                        mDayOfMonth++;
-                    }
-                }else {
-                    if(mDayOfMonth==28){
-                        mDayOfMonth = 1;
-                        mMonth++;
-                    }else {
-                        mDayOfMonth++;
-                    }
-                }
-
-            }
-        }else {
-            if(mMonth==1){
-                if(mDayOfMonth==1){
-                    mMonth = 12;
-                    mDayOfMonth = 31;
-                    mYear--;
-                }else {
-                    mDayOfMonth--;
-                }
-            }else if(mMonth==2 || mMonth==4 || mMonth==6 ||mMonth==8 || mMonth==9 || mMonth==11){
-                if(mDayOfMonth==1){
-                    mMonth--;
-                    mDayOfMonth = 31;
-                }else {
-                    mDayOfMonth--;
-                }
-            }else if(mMonth==3){
-                if(mYear % 4==0){
-                    if(mDayOfMonth==1){
-                        mMonth = 2;
-                        mDayOfMonth = 29;
-                    }else {
-                        mDayOfMonth--;
-                    }
-                }else{
-                    if(mDayOfMonth==1){
-                        mMonth = 2;
-                        mDayOfMonth = 28;
-                    }else {
-                        mDayOfMonth--;
-                    }
-                }
-            }else if(mMonth==5 || mMonth==7 ||mMonth==10 ||mMonth==12){
-                if(mDayOfMonth==1){
-                    mMonth--;
-                    mDayOfMonth = 30;
-                }else {
-                    mDayOfMonth--;
-                }
-            }
-        }
-    }
-
     private void AnalyseDevices(String string) {
         deviceNames.clear();
         try {
@@ -640,13 +555,36 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
     private void imgRightOrLeftClick(boolean isRight){
         am_task_selected = false;
         pm_task_selected = false;
-        caculteDate(isRight);
-        tv_dataTime.setText(mYear+"-"+mMonth+"-"+mDayOfMonth);
-        dialog_dateTime.updateDate(mYear,mMonth-1,mDayOfMonth);
+        if(isRight){
+            setAfter(calendar);
+        }else {
+            setBefore(calendar);
+        }
+        tv_dataTime.setText(getYear()+"-"+getMonth()+"-"+getDate());
+        dialog_dateTime.updateDate(getYear(),getMonth()-1,getDate());
         progress_refresh.setVisibility(View.VISIBLE);
         requestDeviceTasks();
     }
 
+    private Calendar setBefore(Calendar cal){
+        int day = cal.get(Calendar.DATE);
+        cal.set(Calendar.DATE,day-1);
+        return cal;
+    }
+    private Calendar setAfter(Calendar cal){
+        int day = cal.get(Calendar.DATE);
+        cal.set(Calendar.DATE,day+1);
+        return cal;
+    }
+    private int getYear(){
+        return calendar.get(Calendar.YEAR);
+    }
+    private int getMonth(){
+        return calendar.get(Calendar.MONTH)+1;
+    }
+    private int getDate(){
+        return calendar.get(Calendar.DATE);
+    }
     private void selectedAmOrPmTasks(boolean isAm){
         if(isAm){
             if(!am_task_selected){
