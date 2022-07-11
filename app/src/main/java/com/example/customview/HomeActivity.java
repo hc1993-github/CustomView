@@ -565,7 +565,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         progress_refresh.setVisibility(View.VISIBLE);
         requestDeviceTasks();
     }
-
+    private void setCalendar(int year,int month,int day){
+        calendar.set(year,month-1,day);
+    }
     private Calendar setBefore(Calendar cal){
         int day = cal.get(Calendar.DATE);
         cal.set(Calendar.DATE,day-1);
@@ -698,6 +700,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         mMonth = month+1;
         mDayOfMonth = dayOfMonth;
         tv_dataTime.setText(year+"-"+(month+1)+"-"+dayOfMonth);
+        setCalendar(year,month,dayOfMonth);
         progress_refresh.setVisibility(View.VISIBLE);
         img_allPrintSelect.setImageResource(R.drawable.img_white_printer);
         all_tempertures_selected = false;
