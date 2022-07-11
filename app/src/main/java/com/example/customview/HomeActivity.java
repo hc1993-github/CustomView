@@ -566,7 +566,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothUtils.Bl
         requestDeviceTasks();
     }
     private void setCalendar(int year,int month,int day){
-        calendar.set(year,month-1,day);
+        calendar.set(year,month,day);
     }
     private Calendar setBefore(Calendar cal){
         int day = cal.get(Calendar.DATE);
